@@ -2,15 +2,22 @@ import pandas as pd
 
 
 class LoadCSV:
-    def __init__(self, csv_file_path: str) -> None:
-        self.file = csv_file_path
+
+    file : str
     
-    def extract_csv(self):
-        with open(self.file, 'r') as csv_file:
-            pass
+    def extract_from(self, extract_file_path) -> None:
+        self.file = extract_file_path
+        self.data_frame = pd.read_csv(self.file)
 
     def display_csv(self):
-        pass
+        return self.data_frame
 
-            
 
+if __name__ == "__main__":
+
+    FILE_PATH = "CSVfiles\\UniqueErrors.csv"
+    loadcsv = LoadCSV()
+    loadcsv.extract_from(FILE_PATH)
+    file = loadcsv.display_csv()
+    #print(file)
+    print(type(file))
