@@ -17,9 +17,9 @@ class GenerateUniqueField:
 
             try:
                 for row in self.unique_log_reader:
-                    print(row)
+                    #print(row)
                     event_ID.append(row[3])
-                print(event_ID)
+                #print(event_ID)
             except (TypeError, IndexError) as e:
                 print("Some error occured:", e)
 
