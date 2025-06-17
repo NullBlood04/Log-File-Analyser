@@ -2,63 +2,67 @@ param(
     [string]$source
 )
 
-# === Setup paths ===
+# Setup paths
 $csvFolderRelative = "..\\..\\CSVfiles"
 $logFolderPath = Join-Path -Path $PSScriptRoot -ChildPath $csvFolderRelative
 
-# Create CSV folder if it doesn't exist
+# Create folder if needed
 if (-not (Test-Path $logFolderPath)) {
     Write-Output "Creating CSV log folder at: $logFolderPath"
     New-Item -Path $logFolderPath -ItemType Directory | Out-Null
 }
 
-# Define file paths
 $csvPath = Join-Path -Path $logFolderPath -ChildPath "AppErrorLogs.csv"
 $lastIdPath = Join-Path -Path $logFolderPath -ChildPath "last_log_id.txt"
 $logName = "Application"
 
-# === Load last processed Record ID ===
+# Read last index
 if (Test-Path $lastIdPath) {
-    $rawId = Get-Content $lastIdPath | Out-String | Trim
-    Write-Output "Read raw Record ID from file: $rawId"
-    
+    $rawId = (Get-Content $lastIdPath -Raw).Trim()
     try {
-        $lastRecordId = [int]$rawId
+        $lastIndex = [int]$rawId
     } catch {
-        Write-Output "Failed to convert Record ID to int. Defaulting to 0."
-        $lastRecordId = 0
+        Write-Output "Invalid index in file. Resetting to 0."
+        $lastIndex = 0
     }
 } else {
-    Write-Output "No last_log_id.txt found. Starting fresh."
-    $lastRecordId = 0
+    $lastIndex = 0
 }
 
 Write-Output "Log Source Provided: $source"
-Write-Output "Last Processed Record ID: $lastRecordId"
+Write-Output "Last Processed Index: $lastIndex"
 
-# === Fetch new logs ===
+# Fetch new logs using Index
 $newLogs = Get-EventLog -LogName $logName -Source $source -ErrorAction SilentlyContinue |
-    Where-Object { $_.EntryType -eq "Error" -and $_.Index -gt $lastRecordId } |
+    Where-Object { $_.EntryType -eq "Error" -and $_.Index -gt $lastIndex } |
     Sort-Object Index
 
 Write-Output "Found $($newLogs.Count) new error logs."
 
-# === Export to CSV if new logs exist ===
+# Export if logs exist
 if ($newLogs.Count -gt 0) {
-    $logData = $newLogs | Select-Object TimeGenerated, EntryType, Source, EventID, Message
+    $logData = $newLogs | Select-Object Index, TimeGenerated, EntryType, Source, EventID, Message
 
+    # Optional duplicate guard: compare Index values
     if (Test-Path $csvPath) {
-        Write-Output "Appending to existing CSV: $csvPath"
-        $logData | Export-Csv -Path $csvPath -NoTypeInformation -Append
+        $existing = Import-Csv $csvPath
+        $existingIndexes = $existing.Index
+
+        $filteredData = $logData | Where-Object { $_.Index -notin $existingIndexes }
     } else {
-        Write-Output "Creating new CSV: $csvPath"
-        $logData | Export-Csv -Path $csvPath -NoTypeInformation
+        $filteredData = $logData
     }
 
-    # Save latest Record ID
-    $latestRecordId = ($newLogs | Select-Object -Last 1).Index
-    Write-Output "Saving latest Record ID: $latestRecordId"
-    Set-Content -Path $lastIdPath -Value $latestRecordId
+    if ($filteredData.Count -gt 0) {
+        Write-Output "Appending $($filteredData.Count) new logs to CSV."
+        $filteredData | Export-Csv -Path $csvPath -NoTypeInformation -Append
+
+        $latestIndex = ($filteredData | Select-Object -Last 1).Index
+        Write-Output "Saving latest Index: $latestIndex"
+        Set-Content -Path $lastIdPath -Value $latestIndex
+    } else {
+        Write-Output "No unique logs to append (already in CSV)."
+    }
 } else {
-    Write-Output "No new error logs to export."
+    Write-Output "No new logs found."
 }
