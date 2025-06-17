@@ -17,10 +17,6 @@ class LoadCSV:
     
     def display_row(self, event_id):
         return self.data_frame[self.data_frame["EventID"] == event_id].to_dict()
-    
-    
-
-
 
 
 if __name__ == "__main__":
