@@ -4,17 +4,17 @@ class EventlogtoCSV:
 
     ps_script_path = "ProgramFiles\\powershell\\log_export_csv.ps1"
     
-    def __init__(self, app_name: str) -> None:
-        self.app_name = app_name
+    def __init__(self) -> None:
         self.command = [
         "powershell",
         "-ExecutionPolicy", "Bypass",
         "-File", self.ps_script_path,
-        "-source", self.app_name
+        "-source"
         ]
 
 
-    def extract_evt_files(self):
+    def extract_evt_files(self, app_name: str):
+        self.command.append(app_name)
         try:
             self.result = subprocess.run(self.command, capture_output=True, text=True, check=True)
             return self.result
@@ -23,6 +23,6 @@ class EventlogtoCSV:
 
 
 if __name__ == "__main__":
-    return_csv = EventlogtoCSV("Microsoft-Windows-Perflib")
-    csv = return_csv.extract_evt_files()
-    print(csv.stdout) # type: ignore
+    return_csv = EventlogtoCSV()
+    csv = return_csv.extract_evt_files(".NET Runtime")
+    #print(csv.stdout) # type: ignore
