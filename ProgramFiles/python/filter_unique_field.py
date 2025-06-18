@@ -18,15 +18,15 @@ class GenerateUniqueField:
             try:
                 for row in self.unique_log_reader:
                     #print(row)
-                    event_ID.append(row[3])
+                    event_ID.append(row[4])
                 #print(event_ID)
             except (TypeError, IndexError) as e:
                 print("Some error occured:", e)
 
             for row in self.error_log_reader:
-                if row[3] not in event_ID:
+                if row[4] not in event_ID:
                     unique_list.append(row)
-                    event_ID.append(row[3])
+                    event_ID.append(row[4])
 
             csv_writer = csv.writer(unique_log)
             csv_writer.writerows(unique_list)
