@@ -8,7 +8,6 @@ from re import sub
 
 class Main:
 
-
     def __init__(self) -> None:
         self.connect = Connect_AI()
         self.load_csv = LoadCSV()
@@ -38,7 +37,6 @@ Message : {dictionary["Message"][index]}
         convert_to_csv = EventlogtoCSV()
         st.set_page_config(page_title="Event Log Analyser", layout="wide")
         
-
         st.markdown(markdown_css, unsafe_allow_html=True)
         
         st.markdown('<div class="title">Event Log Analyser</div>', unsafe_allow_html=True)
