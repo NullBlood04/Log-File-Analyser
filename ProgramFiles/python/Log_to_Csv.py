@@ -16,10 +16,15 @@ class EventlogtoCSV:
     def extract_evt_files(self, app_name: str):
         self.command.append(app_name)
         try:
-            self.result = subprocess.run(self.command, capture_output=True, text=True, check=True)
-            return self.result
+            result = subprocess.run(self.command, capture_output=True, text=True, check=True)
+            return result
         except Exception:
             print("Failed to create the required csv file")
+
+    
+    """ def return_source(self):
+        command = []
+        return subprocess.run() """
 
 
 if __name__ == "__main__":
