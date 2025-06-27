@@ -1,10 +1,13 @@
+# Library import
 import streamlit as st
+from re import sub
+
+# File import
 from represent_csv import LoadCSV
 from AI_handler import ResultAgent
 from Log_to_Csv import EventlogtoCSV
 from filter_unique_field import GenerateUniqueField
 from error_frequency import ErrorFrequencyAgent
-from re import sub
 
 
 class Main:
@@ -14,9 +17,11 @@ class Main:
         self.gen_frequency = ErrorFrequencyAgent()
         self.load_csv = LoadCSV()
 
+    # Removes Special characters excpet '\', '-', '.'
     def clean_source(self, option):
         return sub(r"[^a-zA-Z0-9_ \-.]", "_", option)
 
+    # Prompts the AI when called
     def button_click(self, dictionary, index) -> None:
         how_frequent = self.gen_frequency.prompt(dictionary["TimeStamp"][index])
         prompt_string = f"""
@@ -31,6 +36,7 @@ Frequency : {how_frequent}
             f'<div class="result-content">{result}</div>', unsafe_allow_html=True
         )
 
+    # Generates the UniqueLog.csv file for respective Source
     def generate_unique_csv(self, option):
         cleaned_option = self.clean_source(option)
         error_log_file = f"CSVfiles\\{cleaned_option}\\{cleaned_option}.csv"
@@ -39,8 +45,9 @@ Frequency : {how_frequent}
         unique.gen_unique(error_log_file, unique_log_file)
         return unique_log_file
 
+    # Main code
     def streamlit_gui(self) -> None:
-        convert_to_csv = EventlogtoCSV()
+        convert_to_csv = EventlogtoCSV()  # Also creates the ApplicationSource.txt file
         from literals import application_list, markdown_css
 
         st.set_page_config(page_title="Event Log Analyser", layout="wide")
@@ -60,6 +67,7 @@ Frequency : {how_frequent}
         st.dataframe(self.load_csv.display_csv())
         csv_dict = self.load_csv.display_csv_dict()
 
+        # Creates cards in web-page depending on number of event (Dynamic creation)
         timegendict = csv_dict["TimeGenerated"]
         for i in range(0, len(timegendict), 3):
             cols = st.columns(3)

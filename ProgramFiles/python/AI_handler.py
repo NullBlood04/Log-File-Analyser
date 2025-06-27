@@ -20,6 +20,7 @@ to resolve or mitigate the problem.
 
 """
 
+    # Prompts AI
     def prompt(self, error_content):  # type: ignore
         try:
             message = [

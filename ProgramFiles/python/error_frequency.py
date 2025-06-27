@@ -22,6 +22,7 @@ timeframes where possible. If not timestamps were give consider it happened only
 Please summarize the daily frequency.  Given are the timestamps
 """
 
+    # Prompts AI
     def prompt(self, error_content):  # type: ignore
         try:
             message = [

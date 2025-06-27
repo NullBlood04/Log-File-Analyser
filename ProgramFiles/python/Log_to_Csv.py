@@ -6,6 +6,7 @@ class EventlogtoCSV:
     log_export_csv_path = "ProgramFiles\\powershell\\log_export_csv.ps1"
     list_event_sources_path = "ProgramFiles\\powershell\\list_event_sources.ps1"
 
+    # Creates ApplicationSources.txt and adds sources
     def __init__(self) -> None:
         list_command = [
             "powershell",
@@ -19,6 +20,7 @@ class EventlogtoCSV:
         except Exception:
             print("Failed to create the required txt file")
 
+    # Extracts error fields from Application.evtx
     def extract_evt_files(self, app_name: str):
         export_command = [
             "powershell",
