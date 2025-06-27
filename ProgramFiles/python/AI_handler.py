@@ -1,6 +1,7 @@
 from parent_aiConnector import Connect_AI
 from langchain.schema import SystemMessage, HumanMessage
 
+
 class ResultAgent(Connect_AI):
 
     system_prompt = """
@@ -18,17 +19,14 @@ them, explain the issue in simple terms, and provide practical, step-by-step sol
 to resolve or mitigate the problem.
 
 """
-    
-    def prompt(self, error_content): # type: ignore
+
+    def prompt(self, error_content):  # type: ignore
         try:
             message = [
                 SystemMessage(content=self.system_prompt),
-                HumanMessage(content=(self.human_prompt + error_content))
+                HumanMessage(content=(self.human_prompt + error_content)),
             ]
-            self.content = self.chat(messages=message).content
+            self.content = self.chat.invoke(message).content
             return self.content
         except Exception as e:
             return f"Something went Wrong: {e}"
-
-    
-
