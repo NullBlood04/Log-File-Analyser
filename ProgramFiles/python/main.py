@@ -12,8 +12,9 @@ class Main:
 
     def __init__(self) -> None:
         self.connect = ResultAgent()
-        self.load_csv = LoadCSV()
         self.gen_frequency = ErrorFrequencyAgent()
+        self.load_csv = LoadCSV()
+        self.convert_to_csv = EventlogtoCSV()
 
     def clean_source(self, option):
         return sub(r"[^a-zA-Z0-9_ \-.]", "_", option)
@@ -41,7 +42,6 @@ Frequency : {how_frequent}
         return unique_log_file
 
     def streamlit_gui(self) -> None:
-        convert_to_csv = EventlogtoCSV()
         st.set_page_config(page_title="Event Log Analyser", layout="wide")
 
         st.markdown(markdown_css, unsafe_allow_html=True)
@@ -51,7 +51,7 @@ Frequency : {how_frequent}
         )
 
         option = st.selectbox("Select application", application_list)
-        convert_to_csv.extract_evt_files(option)
+        self.convert_to_csv.extract_evt_files(option)
         unique_log_file = self.generate_unique_csv(option)
 
         self.load_csv.extract_from(unique_log_file)
@@ -81,4 +81,6 @@ Frequency : {how_frequent}
 
 if __name__ == "__main__":
     main = Main()
+    print("main instantiated")
     main.streamlit_gui()
+    print("gui instantiated")

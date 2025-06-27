@@ -1,44 +1,3 @@
-application_list = [
-    ".NET Runtime",
-    ".NET Runtime Optimization Service",
-    "Application Error",
-    "Application Hang",
-    "brave",
-    "Brave-Browser",
-    "bravem",
-    "CertEnroll",
-    "Edge",
-    "edgeupdate",
-    "ESENT",
-    "EventSystem",
-    "igcc",
-    "IntelDalJhi",
-    "Microsoft-Windows-AppModel-State",
-    "Microsoft-Windows-AppXDeploymentServer/Operational",
-    "Microsoft-Windows-CAPI2",
-    "Microsoft-Windows-Defrag",
-    "Microsoft-Windows-Perflib",
-    "Microsoft-Windows-RestartManager",
-    "Microsoft-Windows-User Profiles Service",
-    "Microsoft-Windows-WMI",
-    "MSI Service",
-    "MsiInstaller",
-    "NortonSecurity",
-    "NVIDIA app SelfUpdate Source",
-    "OneDriveUpdaterService",
-    "ProtonVPNService",
-    "RtkAudioUniversalService",
-    "SecurityCenter",
-    "Service1",
-    "Software Protection Platform Service",
-    "VSS",
-    "Windows Error Reporting",
-    "Windows Search Service",
-    "Wlclntfy",
-    "WMIRegistrationService"
-]
-
-
 markdown_css = """
 <style>
     .title {
@@ -126,3 +85,8 @@ markdown_css = """
     }
 </style>
 """
+
+
+with open("TextFiles\\ApplicationSources.txt", "r", encoding="utf-8-sig") as appfile:
+
+    application_list = [i.strip() for i in appfile.readlines()]
