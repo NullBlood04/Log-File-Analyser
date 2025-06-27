@@ -19,17 +19,29 @@ A Streamlit-based application that automates the process of extracting Windows E
 ```
 .
 ├── CSVfiles/
-│   ├── AppErrorLogs.csv       # Raw event logs
-│   └── UniqueErrors.csv       # Deduplicated logs
+    ├── Source_1
+        ├── AppLog.csv        # Unaltered errors from log
+        ├── UniqueLog.csv     # Redunduncy removed from AppLog
+        └── LastIndex.txt     # Stores last accessed index
+        
+    ├── Source_2 
+      ...
+    └── Source_n
 ├── ProgramFiles/
     └── powershell/
-        └── log_export_csv.ps1 # PowerShell script for log extraction
+        ├── log_export_csv.ps1       # PowerShell script for log extraction
+        └── list_event_sources.ps1   # PowerShell script for Source listing
     └── python
-        ├── AI_handler.py              # Azure OpenAI wrapper via LangChain
+        ├── AI_handler.py              # Result agent (inheriting parent_aiConnector)
+        ├── error_frequency.py         # Frequency agent (inheriting parent_aiConnector)
         ├── Log_to_Csv.py              # PowerShell subprocess trigger
         ├── represent_csv.py           # CSV loading and display logic
+        ├── literals.py                # Large literals
         ├── filter_unique_field.py     # Removes duplicate logs based on EventID
+        ├── parent_aiConnector.py      # Azure OpenAI wrapper via LangChain
         └── main.py                    # Main entry point (contains StreamlitRendering)
+├── TextFiles
+   └── ApplicationSources.txt  # List of Sources entered in Application log
 ├── .env                       # Environment variables for Azure OpenAI
 └── README.md                  # You're here!
 ```
@@ -67,9 +79,13 @@ pip install -r requirements.txt
 ```text
 streamlit
 langchain
+subprocess
 langchain-openai
 python-dotenv
 pandas
+csv
+os
+re
 ```
 
 ---
@@ -95,12 +111,6 @@ streamlit run main.py
 
 4. **UI Display**  
    Streamlit shows a searchable, interactive log table and response area.
-
----
-
-## 📸 Screenshot (Optional)
-
-You can include a screenshot of the Streamlit UI here if you'd like.
 
 ---
 
