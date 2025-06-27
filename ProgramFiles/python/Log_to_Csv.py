@@ -7,7 +7,6 @@ class EventlogtoCSV:
     list_event_sources_path = "ProgramFiles\\powershell\\list_event_sources.ps1"
 
     def __init__(self) -> None:
-        print("EventlogtoCSV instantiated")
         list_command = [
             "powershell",
             "-ExecutionPolicy",
