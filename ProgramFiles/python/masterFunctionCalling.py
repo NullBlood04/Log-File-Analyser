@@ -66,17 +66,19 @@ if __name__ == "__main__":
     with open("JSON\\functions.json", "r") as jsonFile:
         loadedFile = json.load(jsonFile)
 
-    print(loadedFile["function1"])
+    # print(loadedFile["function1"])
 
     prompt_message = "Please draw the line y=10x in cartissian plane for x = 1, 2, 3"
 
     result = fc.query_openai(prompt_message, function=[loadedFile["function1"]])
     # print(result.choices[0].message.tool_calls[0].function)
 
-    function_name = result.choices[0].message.tool_calls[0].function.name  # type: ignore
+    print(result.choices[0].message)
+
+    """ function_name = result.choices[0].message.tool_calls[0].function.name  # type: ignore
     function_arguments = result.choices[0].message.tool_calls[0].function.arguments  # type: ignore
 
     functionCalling = f"{function_name}(**{function_arguments})"
 
     print(functionCalling)
-    exec(functionCalling)
+    exec(functionCalling) """
