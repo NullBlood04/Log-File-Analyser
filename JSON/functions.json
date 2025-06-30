@@ -1,0 +1,28 @@
+{
+    "function1": {
+        "type": "function",
+        "function": {
+            "name": "graph_plot",
+            "description": "plots graph in x, y plane",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "x": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        },
+                        "description": "list of integers to be ploted in x-axis"
+                    },
+                    "y": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        },
+                        "description": "list of integers to be ploted in y-axis"
+                    }
+                }
+            }
+        }
+    }
+}
