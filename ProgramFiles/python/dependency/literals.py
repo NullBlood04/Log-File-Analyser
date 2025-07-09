@@ -95,10 +95,10 @@ with open("TextFiles\\ApplicationSources.txt", "r", encoding="utf-8-sig") as app
 inputHandlerAgent_system_prompt = """ 
 You are an input extraction AI. Your task is to extract the following fields from user input if they are present:
 
-- error_type: Type or category of the error (e.g. Application Error, .NET Runtime)
-- error_message: The actual error message or description
-- application_name: Name of the application involved if stated
-- source: Source of the error (e.g. application name, module, or system source)
+- EventID: The id of the level (e.g. 86, 1000)
+- Source: Type or category of the error or name of the application (e.g. "periflib", .NET Runtime, etc.)
+- message: The actual error message or description
+- level: The level of the source (e.g. error, critical)
 - time_generated: Time when the error was generated
 - additional_details: Any other relevant information mentioned
 
@@ -108,7 +108,7 @@ If the input is a generic prompt, greeting, or does not contain error-related da
   "original_input": "<user_input>"
 }
 
-Always output your response in valid JSON format. No other prefixes required
+Remember: Output **only the JSON** without explanations or commentary.
 """
 
 """
