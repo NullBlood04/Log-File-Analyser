@@ -1,6 +1,8 @@
-from parent_aiConnector import Connect_AI
 from langchain.schema import SystemMessage, HumanMessage
-from literals import (
+
+# Local imports
+from .parent_aiConnector import Connect_AI
+from .literals import (
     errorFrequency_system_prompt,
     errorFrequency_human_prompt,
 )

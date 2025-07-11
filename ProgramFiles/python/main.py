@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-from langchain_core.messages import HumanMessage, AIMessage
+import markdown2
+from langchain_core.messages import AIMessage
 from dependency import ChatBot
 
 app = Flask(__name__)
@@ -16,10 +17,10 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_input = request.json["message"]
+    user_input = request.json["message"]  # type: ignore
 
     # Process input via your existing function
-    new_state = bot.stream_graph(user_input, state)
+    new_state = bot.stream_graph(user_input, state)  # type: ignore
 
     # Get last AI message from updated state
     ai_message = ""
@@ -28,7 +29,8 @@ def chat():
             ai_message = msg.content
             break
 
-    return jsonify({"reply": ai_message})
+    formated_aiMessage = markdown2.markdown(ai_message)
+    return jsonify({"reply": formated_aiMessage})
 
 
 if __name__ == "__main__":
