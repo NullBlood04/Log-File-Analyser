@@ -13,8 +13,8 @@ import os
 # Local imports
 from .frequencyAgent import ErrorFrequencyAgent
 from .resultAgent import ResultAgent
-from .sqlConnection import ConnectDBase
-from .literals import chat_system_prompt
+from ..AdditionalTools.sqlConnection import ConnectDBase
+from ..AdditionalTools.literals import chat_system_prompt
 
 
 load_dotenv()
@@ -57,8 +57,6 @@ prompt = ChatPromptTemplate.from_messages(
 # State definition
 class State(TypedDict):
     messages: list
-    # error_content: str | list | bool | Match[str] | None
-    # ai_response: list
 
 
 @tool(parse_docstring=True)

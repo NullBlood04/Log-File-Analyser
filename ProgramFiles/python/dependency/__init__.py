@@ -1,5 +1,5 @@
-from .chatbot import ChatBot
-from .createDatabase import create_errorDbase
+from .Agents.chatbot import ChatBot
+from .AdditionalTools.createDatabase import create_errorDbase
 
 
 __all__ = ["ChatBot"]

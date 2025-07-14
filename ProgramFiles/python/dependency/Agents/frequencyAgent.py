@@ -2,7 +2,7 @@ from langchain.schema import SystemMessage, HumanMessage
 
 # Local imports
 from .parent_aiConnector import Connect_AI
-from .literals import (
+from ..AdditionalTools.literals import (
     errorFrequency_system_prompt,
     errorFrequency_human_prompt,
 )

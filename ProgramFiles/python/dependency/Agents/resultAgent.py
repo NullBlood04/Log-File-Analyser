@@ -2,7 +2,7 @@ from langchain.schema import SystemMessage, HumanMessage
 
 # Local imports
 from .parent_aiConnector import Connect_AI
-from .literals import (
+from ..AdditionalTools.literals import (
     resultAgent_system_prompt,
     resultAgent_human_prompt,
 )
