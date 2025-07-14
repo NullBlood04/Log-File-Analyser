@@ -9,20 +9,20 @@ from .sqlConnection import ConnectDBase
 
 load_dotenv()
 
+RECORD_PATH = os.getenv("RECORD_PATH")
+
 
 def create_errorDbase() -> None:
 
     # Safely read the last recorded serial number for
-    if not os.path.exists(r".\TextFiles\last_recordedId.txt"):
-        with open(r".\TextFiles\last_recordedId.txt", "w") as record_file:
+    if not os.path.exists(f"{RECORD_PATH}"):
+        with open(f"{RECORD_PATH}", "w") as record_file:
             record_file.write("0")
         last_record_id = 0
 
     else:
-        with open(r".\TextFiles\last_recordedId.txt", "r") as record_file:
+        with open(f"{RECORD_PATH}", "r") as record_file:
             last_record_id = record_file.read()
-
-    print(last_record_id)
 
     # Extract Application.evtx into json format
     powershell_command = (
@@ -76,7 +76,7 @@ def create_errorDbase() -> None:
             if record_id and max_record_id < record_id:
                 max_record_id = record_id
 
-        with open(r".\TextFiles\last_recordedId.txt", "w") as record_file:
+        with open(f"{RECORD_PATH}", "w") as record_file:
             record_file.write(str(max_record_id))
 
         con.disconnect_sql()
@@ -87,3 +87,7 @@ def create_errorDbase() -> None:
 
     finally:
         print("Successfully executed the program")
+
+
+if __name__ == "__main__":
+    create_errorDbase()
