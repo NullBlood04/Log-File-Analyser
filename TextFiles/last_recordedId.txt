@@ -1,0 +1,2 @@
+Stores the last recorded `RecordId` as those data which are already recorded
+will not be read, hence will not append to database; optimising initial setup
