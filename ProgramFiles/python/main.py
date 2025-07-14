@@ -3,7 +3,7 @@ import markdown2
 from langchain_core.messages import AIMessage
 from dependency import ChatBot
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=r"..\..\templates", static_folder=r"..\..\static")
 
 bot = ChatBot()
 
@@ -29,7 +29,7 @@ def chat():
             ai_message = msg.content
             break
 
-    formated_aiMessage = markdown2.markdown(ai_message)
+    formated_aiMessage = markdown2.markdown(ai_message, extras=["fenced-code-blocks"])
     return jsonify({"reply": formated_aiMessage})
 
 
