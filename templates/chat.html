@@ -8,8 +8,10 @@
 <body>
     <h2>Log Analyser Chatbot</h2>
     <div id="chatbox"></div>
-    <input type="text" id="user_input" placeholder="Type your message..." autofocus>
-    <button onclick="sendMessage()">Send</button>
+    <form id="chatForm">
+        <input type="text" id="user_input" placeholder="Type your message..." autofocus>
+        <button type="submit" id="sendButton">Send</button>
+    </form>
 
     <!-- Load your custom script -->
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
