@@ -25,7 +25,6 @@ def database_tool(operation: str, query: str, params: tuple | None = None):
     """
     Performs a database operation on the "log" database (execute or fetch) and returns the result.
 
-
     Database Schema:
         Table: application_errors
             - EventID (INT, PRIMARY KEY, NOT NULL)
