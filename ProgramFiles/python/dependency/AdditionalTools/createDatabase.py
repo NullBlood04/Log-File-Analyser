@@ -25,15 +25,16 @@ def create_errorDbase() -> None:
             last_record_id = record_file.read()
 
     # Extract Application.evtx into json format
-    powershell_command = (
-        "Get-WinEvent -LogName Application | "
-        f"Where-Object {{ $_.LevelDisplayName -in @('Error','Critical') -and $_.RecordId -gt {last_record_id} }} |"
-        "Select-Object Id, LevelDisplayName, ProviderName, TimeCreated, Message, RecordId | "
-        "ConvertTo-Json"
-    )
 
     result = subprocess.run(
-        ["powershell", "-ExecutionPolicy", "Bypass", "-Command", powershell_command],
+        [
+            "powershell",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "ProgramFiles\\powershell\\extract_logs.ps1",
+            f"{last_record_id}",
+        ],
         capture_output=True,
         text=True,
     )
@@ -46,6 +47,10 @@ def create_errorDbase() -> None:
         con = ConnectDBase(user, password, "log")
 
         logs = json.loads(result.stdout)
+
+        # This handles the case where only one log entry is returned
+        if isinstance(logs, dict):
+            logs = [logs]
 
         # Convert JSON .NET date format to ISO format
         def sanitise_datetime(timestamp: str):
