@@ -33,7 +33,7 @@ chat = AzureChatOpenAI(
     temperature=0.2,
 )
 
-memory = ConversationBufferWindowMemory(return_messages=True, k=5)
+memory = ConversationBufferWindowMemory(return_messages=True, k=4)
 
 initial_state = {
     "messages": [],
