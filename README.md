@@ -25,17 +25,19 @@ A Flask-based application that automates the process of extracting Windows Error
 │   │   └── extract_logs.ps1          # PowerShell script to extract logs from Windows Event Logs
 │   └── python/
 │       ├── dependency/
+|       |   ├── __init__.py               # Package initializer, may import and trigger database creation
 │       │   ├── Agents/
 │       │   │   ├── chatbot.py        # Contains chatbot logic and LangGraph implementation
 │       │   │   ├── frequencyAgent.py # Agent for analyzing error frequency
 │       │   │   └── resultAgent.py    # Agent for analyzing error content and suggesting solutions
-│       │   ├── parent_aiConnector.py # Wrapper to connect to Azure OpenAI APIs
-│       ├── AdditionalTools/
-│       │   ├── chatbotTools.py       # Tools used by the chatbot: database operations, frequency analysis, result analysis, system probing
-│       │   ├── createDatabase.py     # Script to create and populate the MySQL database
-│       │   ├── literals.py           # Large string literals like prompts and templates
-│       │   └── sqlConnection.py      # Class for MySQL database connection handling
-│       ├── __init__.py               # Package initializer, may import and trigger database creation
+│       │   |
+│       |   ├── AdditionalTools/
+|       |       ├── parent_aiConnector.py # Wrapper to connect to Azure OpenAI APIs
+│       │       ├── chatbotTools.py       # Tools used by the chatbot: database operations, frequency analysis, result analysis, system probing
+│       │       ├── createDatabase.py     # Script to create and populate the MySQL database
+│       │       ├── literals.py           # Large string literals like prompts and templates
+│       │       └── sqlConnection.py      # Class for MySQL database connection handling
+│       |
 │       └── main.py                   # Flask app entry point to run the web interface
 ├── static/
 │   ├── scripts.js                    # JavaScript for client-side chat interface interactivity
@@ -121,7 +123,7 @@ os
       - The extracted logs are converted to JSON format.
 
    2. **Database Storage**
-   
+
       - The extracted logs are stored in the application_errors table in the MySQL database.
       - The createDatabase.create_errorDbase function connects to the database using the credentials from the .env file.
       - The last_recordedId is updated in last_recordedId.txt to prevent duplicate entries.
