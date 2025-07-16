@@ -86,7 +86,7 @@ def chatbot(state: State):
     response = conversation.invoke({"input": user_input})
 
     state["messages"].append(response)
-    memory.save_context({"input": user_input}, {"output": str(response)})
+    memory.save_context({"input": user_input}, {"output": str(response.content)})
 
     return state
 
