@@ -22,8 +22,6 @@ RECORD_PATH = os.getenv("RECORD_PATH")
 user = os.getenv("MYSQL_USER")
 password = os.getenv("MYSQL_PASSWORD")
 
-con = ConnectDBase(user, password, None)
-
 query = """
 CREATE DATABASE IF NOT EXISTS log;
 USE log;
@@ -40,7 +38,9 @@ CREATE TABLE IF NOT EXISTS application_errors (
 def create_errorDbase() -> None:
 
     if not os.path.exists(os.path.abspath(str(RECORD_PATH))):
+        con = ConnectDBase(user, password, None)
         con.execute_query(query)
+        con.disconnect_sql()
 
     else:
         print("Database already exists")
