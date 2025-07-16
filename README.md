@@ -34,7 +34,8 @@ A Flask-based application that automates the process of extracting Windows Error
 │       |   ├── AdditionalTools/
 |       |       ├── parent_aiConnector.py # Wrapper to connect to Azure OpenAI APIs
 │       │       ├── chatbotTools.py       # Tools used by the chatbot: database operations, frequency analysis, result analysis, system probing
-│       │       ├── createDatabase.py     # Script to create and populate the MySQL database
+│       │       ├── createDatabase.py     # Script to create the MySQL database
+│       │       ├── insertData.py         # Script to populate the MySQL database
 │       │       ├── literals.py           # Large string literals like prompts and templates
 │       │       └── sqlConnection.py      # Class for MySQL database connection handling
 │       |
@@ -99,10 +100,10 @@ os
 
 ## ▶️ Run the App
 
-   1. **Set up the database**
+   1. **Initial Setup**
       - Ensure **MySQL** is installed and running.
-      - Create a database named `log`.
-      - The `create_errorDbase()` function in `createDatabase.py` will create the `application_errors` table if it doesn't exist.
+      - `create_errorDbase()` function in `createDatabase.py` will create the `log` database and `application_errors` table it it doesn't exist.
+      - The `data_insert()` function in `insertData.py` will populate new data as `Application Event Log` gets updated with new data.
 
    2. **Run the Flask app**
       ```ps1
