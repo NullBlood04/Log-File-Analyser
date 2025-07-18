@@ -29,7 +29,7 @@ def chat():
             ai_message = msg.content
             break
 
-    formated_aiMessage = markdown2.markdown(ai_message, extras=["fenced-code-blocks"])
+    formated_aiMessage = markdown2.markdown(ai_message, extras=["fenced-code-blocks"])  # type: ignore
     return jsonify({"reply": formated_aiMessage})
 
 
