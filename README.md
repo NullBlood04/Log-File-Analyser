@@ -1,16 +1,18 @@
 # 📋 Windows Event Log Analyzer
 
-A Streamlit-based application that automates the process of extracting Windows Error Event Logs, filters out duplicates, and provides intelligent analysis using Azure OpenAI (via LangChain).
+A Flask-based application that automates the process of extracting Windows Error Event Logs, filters out duplicates, and provides intelligent analysis using Azure OpenAI (via LangChain).
 
 ---
 
 ## 🚀 Features
 
-- 📤 **Extracts Windows Application Error Logs** using a PowerShell script  
-- 🧹 **Filters duplicate logs** to avoid repetition and reduce noise  
-- 🤖 **Analyzes log messages** using GPT (via Azure OpenAI and LangChain)  
-- 💡 **Explains errors in simple terms** with step-by-step resolution suggestions  
-- 🧾 **Displays logs in a web interface** using Streamlit
+-   💬 **Chatbot Interface:** Interact with the log analyzer through a conversational chatbot.
+-   📤 **Extracts Windows Application Error Logs** using a PowerShell script ([`extract_logs.ps1`](ProgramFiles/powershell/extract_logs.ps1)).
+-   🤖 **Analyzes log messages** using GPT (via Azure OpenAI and LangChain).
+-   💡 **Explains errors in simple terms** with step-by-step resolution suggestions.
+-   🗄️ **Database Storage:** Stores extracted logs in a MySQL database.
+-   🔍 **Error Frequency Analysis:** Determines the frequency of errors using AI.
+-   💻 **System Probing:** Executes validated PowerShell scripts to gather system information.
 
 ---
 
@@ -18,53 +20,58 @@ A Streamlit-based application that automates the process of extracting Windows E
 
 ```
 .
-├── CSVfiles/
-    ├── Source_1
-        ├── AppLog.csv        # Unaltered errors from log
-        ├── UniqueLog.csv     # Redunduncy removed from AppLog
-        └── LastIndex.txt     # Stores last accessed index
-        
-    ├── Source_2 
-      ...
-    └── Source_n
 ├── ProgramFiles/
-    └── powershell/
-        ├── log_export_csv.ps1       # PowerShell script for log extraction
-        └── list_event_sources.ps1   # PowerShell script for Source listing
-    └── python
-        ├── AI_handler.py              # Result agent (inheriting parent_aiConnector)
-        ├── error_frequency.py         # Frequency agent (inheriting parent_aiConnector)
-        ├── Log_to_Csv.py              # PowerShell subprocess trigger
-        ├── represent_csv.py           # CSV loading and display logic
-        ├── literals.py                # Large literals
-        ├── filter_unique_field.py     # Removes duplicate logs based on EventID
-        ├── parent_aiConnector.py      # Azure OpenAI wrapper via LangChain
-        └── main.py                    # Main entry point (contains StreamlitRendering)
-├── TextFiles
-   └── ApplicationSources.txt  # List of Sources entered in Application log
-├── .env                       # Environment variables for Azure OpenAI
-└── README.md                  # You're here!
+│   ├── powershell/
+│   │   └── extract_logs.ps1          # PowerShell script to extract logs from Windows Event Logs
+│   └── python/
+│       ├── dependency/
+|       |   ├── __init__.py               # Package initializer, may import and trigger database creation
+│       │   ├── Agents/
+│       │   │   ├── chatbot.py        # Contains chatbot logic and LangGraph implementation
+│       │   │   ├── frequencyAgent.py # Agent for analyzing error frequency
+│       │   │   └── resultAgent.py    # Agent for analyzing error content and suggesting solutions
+│       │   |
+│       |   ├── AdditionalTools/
+|       |       ├── parent_aiConnector.py # Wrapper to connect to Azure OpenAI APIs
+│       │       ├── chatbotTools.py       # Tools used by the chatbot: database operations, frequency analysis, result analysis, system probing
+│       │       ├── createDatabase.py     # Script to create the MySQL database
+│       │       ├── insertData.py         # Script to populate the MySQL database
+│       │       ├── literals.py           # Large string literals like prompts and templates
+│       │       └── sqlConnection.py      # Class for MySQL database connection handling
+│       |
+│       └── main.py                   # Flask app entry point to run the web interface
+├── static/
+│   ├── scripts.js                    # JavaScript for client-side chat interface interactivity
+│   └── styles.css                    # CSS styling for the web interface
+├── templates/
+│   └── chat.html                     # HTML template for the chat web page (Flask renders this)
+├── TextFiles/
+│   └── last_recordedId.txt           # Stores last recorded event ID to avoid duplicate log processing
+├── .env                              # Environment variables (Azure OpenAI keys, database credentials, etc.)
+└── README.md                         # You're Here
+
 ```
 
 ---
 
 ## 🛠️ Requirements
 
-- Python 3.9+
-- PowerShell (Windows only)
-- [Azure OpenAI resource](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/overview)
-- `AppErrorLogs.csv` generated via PowerShell
-- `.env` file configured (see below)
+-   Python 3.9+
+-   PowerShell (Windows only)
+-   [Azure OpenAI resource](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/overview)
+-   MySQL Database
+-   `.env` file configured (see below)
 
 ---
 
 ## 🔐 `.env` File Format
-
-```
+```text
 AZURE_OPENAI_API_KEY=your-api-key
 AZURE_DEPLOYMENT_NAME=your-deployment-name
 AZURE_RESOURCE_NAME=your-resource-name
 AZURE_API_VERSION=2024-02-15-preview
+MYSQL_USER=your-mysql-username
+MYSQL_PASSWORD=your-mysql-password
 ```
 
 ---
@@ -77,59 +84,90 @@ pip install -r requirements.txt
 
 **`requirements.txt` example:**
 ```text
-streamlit
+Flask
+markdown2
 langchain
-subprocess
+langgraph
 langchain-openai
 python-dotenv
-pandas
-csv
-os
+mysql-connector-python
+typing_extensions
 re
+os
 ```
 
 ---
 
 ## ▶️ Run the App
 
-```bash
-streamlit run main.py
-```
+   1. **Initial Setup**
+      - Ensure **MySQL** is installed and running.
+      - `create_errorDbase()` function in `createDatabase.py` will create the `log` database and `application_errors` table it it doesn't exist.
+      - The `data_insert()` function in `insertData.py` will populate new data as `Application Event Log` gets updated with new data.
+
+   2. **Run the Flask app**
+      ```ps1
+      python ProgramFiles/python/main.py
+      ```
+
+   3. **Open in your browser:**
+      - Open your browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 ---
 
 ## ⚙️ How It Works
 
-1. **Log Extraction**  
-   A PowerShell script (`log_export_csv.ps1`) extracts Application Error logs for a given source.
+   1. **Log Extraction**
 
-2. **Duplicate Removal**  
-   The script filters logs based on unique `EventID` and writes only unseen entries to `UniqueErrors.csv`.
+      - The createDatabase.create_errorDbase function uses a PowerShell script (extract_logs.ps1) to extract Application Error logs.
+      - The script retrieves logs with Error or Critical level and a RecordId greater than the last recorded ID (stored in TextFiles/last_recordedId.txt).
+      - The extracted logs are converted to JSON format.
 
-3. **Log Analysis**  
-   Each error can be submitted to Azure OpenAI for analysis via a button in the UI.
+   2. **Database Storage**
 
-4. **UI Display**  
-   Streamlit shows a searchable, interactive log table and response area.
+      - The extracted logs are stored in the application_errors table in the MySQL database.
+      - The createDatabase.create_errorDbase function connects to the database using the credentials from the .env file.
+      - The last_recordedId is updated in last_recordedId.txt to prevent duplicate entries.
+   
+   3. **Chatbot Interface**
+
+      - The Flask application serves a chat interface using the chat.html template and the associated static files (scripts.js and static/styles.css).
+      - User input is sent to the /chat endpoint, which uses the ChatBot class to process the input.
+
+   4. **AI-Powered Analysis**
+
+      - The ChatBot class uses LangGraph to orchestrate different agents and tools.
+      - The available tools are defined in chatbotTools.py and include:
+         + database_tool: For executing SQL queries against the database.
+         + errorFrequencyAgent_prompt_node: For summarizing the frequency of errors based on timestamps.
+         + resultAgent_prompt_node: For analyzing error content and providing explanations and solutions.
+         + probe_system: For executing validated PowerShell scripts.
+      - The agents use Azure OpenAI to generate responses based on the provided prompts (defined in literals.py).
 
 ---
 
 ## 🧠 AI Behavior
 
-The AI is prompted with a clear system instruction to analyze logs, explain the error, and provide solutions in a concise and user-friendly tone. It responds with practical advice that helps users understand and act on the error messages.
+The AI is prompted with **clear system instructions** to analyze logs, explain errors, and provide solutions in a concise and user-friendly tone. It responds with practical advice to help users understand and act on error messages.
+
+Key agents:
+
+- **ResultAgent**: Detailed error analysis and solutions.
+- **ErrorFrequencyAgent**: Summarizes error occurrence patterns.
 
 ---
 
 ## ✅ Future Improvements
 
-- [ ] Add filtering by date, severity, or source  
-- [ ] Enable multi-log comparison  
-- [ ] Support other log types (e.g., System, Security)  
-- [ ] Archive old logs for long-term analysis  
-- [ ] Deploy on an internal network or intranet
+- [ ] Implement user authentication and authorization.
+- [ ] Add filtering by date, severity, or source.
+- [ ] Enable multi-log comparison.
+- [ ] Support other log types (e.g., System, Security).
+- [ ] Archive old logs for long-term analysis.
+- [ ] Deploy on an internal network or intranet.
 
 ---
 
 ## 📄 License
 
-This project is for internal use and educational purposes. For external/public deployment, ensure compliance with Microsoft and OpenAI usage policies.
+This project is for **internal use and educational purposes**. For external or public deployment, ensure compliance with **Microsoft** and **OpenAI usage policies**.

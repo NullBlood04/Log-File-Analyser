@@ -1,85 +1,37 @@
-import streamlit as st
-from represent_csv import LoadCSV
-from AI_handler import ResultAgent
-from Log_to_Csv import EventlogtoCSV
-from filter_unique_field import GenerateUniqueField
-from error_frequency import ErrorFrequencyAgent
-from re import sub
+from flask import Flask, render_template, request, jsonify
+import markdown2
+from langchain_core.messages import AIMessage
+from dependency import ChatBot
+
+app = Flask(__name__, template_folder=r"..\..\templates", static_folder=r"..\..\static")
+
+bot = ChatBot()
+
+state = {"messages": []}
 
 
-class Main:
+@app.route("/")
+def index():
+    return render_template("chat.html")
 
-    def __init__(self) -> None:
-        self.connect = ResultAgent()
-        self.gen_frequency = ErrorFrequencyAgent()
-        self.load_csv = LoadCSV()
 
-    def clean_source(self, option):
-        return sub(r"[^a-zA-Z0-9_ \-.]", "_", option)
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_input = request.json["message"]  # type: ignore
 
-    def button_click(self, dictionary, index) -> None:
-        how_frequent = self.gen_frequency.prompt(dictionary["TimeStamp"][index])
-        prompt_string = f"""
-Event ID : {dictionary["EventID"][index]}
-Source : {dictionary["Source"][index]}
-Entry Type : {dictionary["EntryType"][index]}
-Message : {dictionary["Message"][index]}
-Frequency : {how_frequent}
-"""
-        result = self.connect.prompt(prompt_string)
-        st.markdown(
-            f'<div class="result-content">{result}</div>', unsafe_allow_html=True
-        )
+    # Process input via your existing function
+    new_state = bot.stream_graph(user_input, state)  # type: ignore
 
-    def generate_unique_csv(self, option):
-        cleaned_option = self.clean_source(option)
-        error_log_file = f"CSVfiles\\{cleaned_option}\\{cleaned_option}.csv"
-        unique_log_file = f"CSVfiles\\{cleaned_option}\\unique_{cleaned_option}.csv"
-        unique = GenerateUniqueField()
-        unique.gen_unique(error_log_file, unique_log_file)
-        return unique_log_file
+    # Get last AI message from updated state
+    ai_message = ""
+    for msg in reversed(new_state["messages"]):
+        if isinstance(msg, AIMessage):
+            ai_message = msg.content
+            break
 
-    def streamlit_gui(self) -> None:
-        convert_to_csv = EventlogtoCSV()
-        from literals import application_list, markdown_css
-
-        st.set_page_config(page_title="Event Log Analyser", layout="wide")
-
-        st.markdown(markdown_css, unsafe_allow_html=True)
-
-        st.markdown(
-            '<div class="title">Event Log Analyser</div>', unsafe_allow_html=True
-        )
-
-        option = st.selectbox("Select application", application_list)
-        convert_to_csv.extract_evt_files(option)
-        unique_log_file = self.generate_unique_csv(option)
-
-        self.load_csv.extract_from(unique_log_file)
-
-        st.dataframe(self.load_csv.display_csv())
-        csv_dict = self.load_csv.display_csv_dict()
-
-        timegendict = csv_dict["TimeGenerated"]
-        for i in range(0, len(timegendict), 3):
-            cols = st.columns(3)
-            for j, col in enumerate(cols):
-                if (i + j) < len(timegendict):
-                    with col:
-                        st.markdown(
-                            f"""
-                            <div class="card">
-                                <div class="card-title">EventID: {csv_dict['EventID'][i+j]}</div>
-                                <div class="card-body">{csv_dict['Message'][i+j]}</div>
-                            </div>
-                        """,
-                            unsafe_allow_html=True,
-                        )
-
-                        if st.button("Analyse", key=(i + j)):
-                            self.button_click(csv_dict, (i + j))
+    formated_aiMessage = markdown2.markdown(ai_message, extras=["fenced-code-blocks"])  # type: ignore
+    return jsonify({"reply": formated_aiMessage})
 
 
 if __name__ == "__main__":
-    main = Main()
-    main.streamlit_gui()
+    app.run(debug=True)
