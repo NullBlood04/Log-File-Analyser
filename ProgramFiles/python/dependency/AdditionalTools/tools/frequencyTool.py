@@ -19,7 +19,6 @@ def errorFrequencyAgent_prompt_node(timestamps: str):
         str: One-line AI summary of error frequency.
     """
 
-    print("_________________ErrorFrequency used_____________________", "\n", timestamps)
     logging.info(f"Received timestamps for frequency analysis: {timestamps}")
     frequencyAgent = ErrorFrequencyAgent()
     response = frequencyAgent.frequency_prompt(timestamps)
