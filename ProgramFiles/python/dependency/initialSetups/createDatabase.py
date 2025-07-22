@@ -3,7 +3,7 @@ import os
 import logging
 
 # Local imports
-from .sqlConnection import ConnectDBase
+from ..AdditionalTools.sqlConnection import ConnectDBase
 
 # Configure logging
 logging.basicConfig(
