@@ -6,7 +6,7 @@ import logging
 
 
 PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")
 )
 CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
@@ -37,7 +37,9 @@ def query_chroma(query: str, where_filter: dict | None = None):
 
     try:
         chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        collection = chroma_client.get_collection(name="windows_event_logs")
+        # Use get_or_create_collection for robustness. This prevents errors
+        # if the collection doesn't exist yet (e.g., on a fresh run with no new logs).
+        collection = chroma_client.get_or_create_collection(name="windows_event_logs")
 
         results = collection.query(query_texts=[query], n_results=2, where=where_filter)
 
@@ -50,10 +52,8 @@ def query_chroma(query: str, where_filter: dict | None = None):
         return "\n".join(documents[0])
 
     except ValueError as e:
-        # This can happen if the collection does not exist or filter is invalid
-        logging.error(f"ChromaDB query failed: {e}")
-        if "does not exist" in str(e):
-            return "Error: The log database collection does not exist. Please ensure embeddings have been created."
+        # This can happen if the where_filter is invalid.
+        logging.error(f"ChromaDB query failed with invalid filter: {e}")
         return f"Error during ChromaDB query, possibly an invalid filter: {e}"
     except Exception as e:
         logging.error(f"An error occurred during ChromaDB query: {e}")
