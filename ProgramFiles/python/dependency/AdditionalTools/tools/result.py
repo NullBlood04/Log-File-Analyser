@@ -1,5 +1,10 @@
 from langchain.tools import tool
+import logging
 from ...Agents.resultAgent import ResultAgent
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 @tool(parse_docstring=True)
@@ -13,6 +18,7 @@ def resultAgent_prompt_node(analyse_content: str):
     Returns:
         str: AI-generated explanation and solution.
     """
+    logging.info(f"Received content for analysis: {analyse_content}")
     resultAgent = ResultAgent()
     response = resultAgent.prompt(analyse_content)
     return response

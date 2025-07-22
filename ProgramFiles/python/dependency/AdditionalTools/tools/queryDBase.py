@@ -2,9 +2,13 @@ from langchain.tools import tool
 from ..sqlConnection import ConnectDBase
 from dotenv import load_dotenv
 import os
-import re
+import logging
 
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 PROJECT_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
 )
@@ -16,9 +20,11 @@ PWD = os.getenv("MYSQL_PASSWORD")
 
 
 @tool(parse_docstring=True)
-def database_tool(operation: str, query: str, params: tuple | None = None):
+def query_sql_database(query: str, params: tuple | None = None):
     """
-    Performs a database operation on the "log" database (execute or fetch) and returns the result.
+    Executes a read-only SQL SELECT query on the 'log' database and returns the results.
+    This tool is for data retrieval only. Operations like INSERT, UPDATE, or DELETE are not allowed.
+    Use '%s' as the placeholder for parameters in the query.
 
     Database Schema:
         Table: application_errors
@@ -29,57 +35,39 @@ def database_tool(operation: str, query: str, params: tuple | None = None):
             - TimeCreated (DATETIME)
 
     Args:
-        operation (str): The type of database operation to perform. Accepts:
-                        - "execute" for modifying queries (INSERT, UPDATE, DELETE)
-                        - "fetch" for retrieval queries (SELECT).
-        query (str): The SQL query string.
-        params (tuple, optional): Query parameters.
+        query (str): The SELECT SQL query string. Must start with "SELECT".
+        params (tuple, optional): A tuple of parameters to be safely substituted into the query.
 
     Returns:
-        Any: The result of the database operation.
-             For "execute" operations, returns True if successful.
-             For "fetch" operations, returns fetched data as a list of rows.
-
-    Raises:
-        ConnectionError: If the database connection or operation fails.
-        ValueError: If an invalid operation type is provided.
+        list[tuple] | str: A list of rows for a successful query, or an error message string.
+                           Returns an empty list if no records are found.
     """
-    print("___________________database_tool used______________________")
-    clean_query = re.sub(r"\?", "%s", query)
-    connection = ConnectDBase(user=USR, password=PWD, database="log")
+    logging.info(f"Executing SQL query: {query} with params: {params}")
 
+    # Security: Enforce read-only operations
+    if not query.strip().upper().startswith("SELECT"):
+        logging.warning(f"Blocked non-SELECT query: {query}")
+        return "Error: Only SELECT queries are allowed."
+
+    connection = None
     try:
-        if operation == "execute":
+        connection = ConnectDBase(user=USR, password=PWD, database="log")
+        if not connection.is_connected():
+            raise ConnectionError(
+                "Failed to establish a connection to the SQL database."
+            )
 
-            isExecuted = connection.execute_query(clean_query, params)
-            if isExecuted:
-                print(clean_query, params)
-                return isExecuted
-
-            else:
-                print(clean_query, params)
-                raise ConnectionError(
-                    "Connection may not be established, please check whether sql is connected"
-                )
-
-        elif operation == "fetch":
-            isFetched = connection.fetch_all(clean_query, params)
-
-            if isFetched:
-                print(clean_query, params)
-                return isFetched
-
-            else:
-                print(clean_query, params)
-                raise ConnectionError(
-                    "Connection may not be established, please check whether sql is connected"
-                )
-
+        results = connection.fetch_all(query, params)
+        if isinstance(results, list):
+            logging.info(f"Query returned {len(results)} rows.")
         else:
-            raise ValueError("Invalid operation type. Use 'execute' or 'fetch'.")
+            logging.info("Query did not return a list of results.")
+        return results
 
     except Exception as e:
-        connection.disconnect_sql()
+        logging.error(f"Database query failed: {e}")
+        return f"Error during database query: {e}"
 
     finally:
-        connection.disconnect_sql()
+        if connection and connection.is_connected():
+            connection.disconnect_sql()

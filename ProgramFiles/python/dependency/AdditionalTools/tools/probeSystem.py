@@ -30,6 +30,10 @@ ALLOWED_COMMANDS = {
     "Get-NetTCPConnection": r"Get-NetTCPConnection(?: -State \w+)?",
 }
 
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 @tool(parse_docstring=True)
 def probe_system(script: str) -> str:
@@ -48,7 +52,7 @@ def probe_system(script: str) -> str:
     Returns:
         str: Output from the executed script or an error message.
     """
-    print("_________________probe_system used____________________")
+    logging.info(f"Received script for execution: {script}")
     try:
         # Input Validation (Whitelist approach)
         command_found = False

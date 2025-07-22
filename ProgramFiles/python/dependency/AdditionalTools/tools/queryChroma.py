@@ -11,6 +11,10 @@ PROJECT_ROOT = os.path.abspath(
 CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 @tool(parse_docstring=True)
 def query_chroma(query: str, where_filter: dict | None = None):
@@ -29,8 +33,8 @@ def query_chroma(query: str, where_filter: dict | None = None):
     Returns:
         str: Relevant log entries or a message if none found.
     """
-    print("________________chromadb used_________________")
-    print(query, where_filter)
+    logging.info(f"Querying ChromaDB with query: {query} and filter: {where_filter}")
+
     try:
         chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
         collection = chroma_client.get_collection(name="windows_event_logs")
