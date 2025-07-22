@@ -34,5 +34,7 @@ function sendMessage() {
     })
     .catch(error => {
         chatbox.innerHTML += `<div class="bot">Error: ${error}</div>`;
+        sentBtn.disabled = false;
+        sentBtn.textContent = "Send";
     });
 }
