@@ -20,7 +20,7 @@ PWD = os.getenv("MYSQL_PASSWORD")
 
 
 @tool(parse_docstring=True)
-def query_sql_database(query: str, params: tuple | None = None):
+def database_tool(query: str, params: tuple | None = None):
     """
     Executes a read-only SQL SELECT query on the 'log' database and returns the results.
     This tool is for data retrieval only. Operations like INSERT, UPDATE, or DELETE are not allowed.
