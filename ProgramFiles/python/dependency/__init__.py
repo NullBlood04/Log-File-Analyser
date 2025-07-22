@@ -1,12 +1,11 @@
 from .Agents.chatbot import ChatBot
-from .AdditionalTools.insertData import data_insert
-from .AdditionalTools.createDatabase import create_errorDbase
+from .initialSetups.process_logs import process_new_logs
+from .initialSetups.createDatabase import create_errorDbase
 
 
 __all__ = ["ChatBot"]
 
-# Automaticaly creates database and table if not exists
-create_errorDbase()
 
-# Inserts data into tables
-data_insert()
+# Create database and insert data if not exists
+create_errorDbase()
+process_new_logs()
