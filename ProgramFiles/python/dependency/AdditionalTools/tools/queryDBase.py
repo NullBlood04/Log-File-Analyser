@@ -39,8 +39,8 @@ def database_tool(query: str, params: tuple | None = None):
         params (tuple, optional): A tuple of parameters to be safely substituted into the query.
 
     Returns:
-        list[tuple] | str: A list of rows for a successful query, or an error message string.
-                           Returns an empty list if no records are found.
+        str: A formatted string of the results, suitable for an LLM.
+             Returns a message if no records are found or an error occurs.
     """
     logging.info(f"Executing SQL query: {query} with params: {params}")
 
@@ -57,12 +57,36 @@ def database_tool(query: str, params: tuple | None = None):
                 "Failed to establish a connection to the SQL database."
             )
 
-        results = connection.fetch_all(query, params)
-        if isinstance(results, list):
-            logging.info(f"Query returned {len(results)} rows.")
-        else:
-            logging.info("Query did not return a list of results.")
-        return results
+        rows = connection.fetch_all(query, params)
+        if not rows:
+            return "Query executed successfully, but no records were found."
+
+        # Get column names from the cursor description
+        # Ensure connection.cursor is not None before accessing .description
+        column_names = (
+            [desc[0] for desc in connection.cursor.description]
+            if connection.cursor and connection.cursor.description
+            else []
+        )
+        total_rows = len(rows)  # type: ignore
+        logging.info(f"Query returned {total_rows} rows.")
+
+        # Serialize each row into a human-readable string
+        formatted_rows = [
+            ", ".join([f"{col}: {val}" for col, val in zip(column_names, row)])
+            for row in rows  # type: ignore
+        ]
+
+        # Combine into a single text block
+        full_output = "\n".join(formatted_rows)
+
+        # Truncate if the output is too large for the LLM context
+        max_output_length = 4000  # Characters
+        if len(full_output) > max_output_length:
+            truncated_output = full_output[:max_output_length]
+            return f"{truncated_output}\n... (truncated, showing a subset of {total_rows} total rows)"
+
+        return full_output
 
     except Exception as e:
         logging.error(f"Database query failed: {e}")
