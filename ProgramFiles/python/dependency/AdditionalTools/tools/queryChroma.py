@@ -41,7 +41,7 @@ def query_chroma(query: str, where_filter: dict | None = None):
         # if the collection doesn't exist yet (e.g., on a fresh run with no new logs).
         collection = chroma_client.get_or_create_collection(name="windows_event_logs")
 
-        results = collection.query(query_texts=[query], n_results=2, where=where_filter)
+        results = collection.query(query_texts=[query], n_results=5, where=where_filter)
 
         documents = results.get("documents")
         if not documents or not documents[0]:
@@ -49,8 +49,15 @@ def query_chroma(query: str, where_filter: dict | None = None):
 
         # Join the documents into a single plain text string, separated by newlines.
         # This is cleaner for an LLM to process.
-        return "\n".join(documents[0])
+        full_output = "\n---\n".join(documents[0])
 
+        # Truncate if the output is too large for the LLM context to prevent errors.
+        max_output_length = 4000  # Characters
+        if len(full_output) > max_output_length:
+            truncated_output = full_output[:max_output_length]
+            return f"{truncated_output}\n... (truncated, showing a subset of the most relevant results)"
+
+        return full_output
     except ValueError as e:
         # This can happen if the where_filter is invalid.
         logging.error(f"ChromaDB query failed with invalid filter: {e}")
