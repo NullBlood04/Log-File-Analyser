@@ -1,16 +1,9 @@
-import logging
-
 # Local import
 from .tools.frequencyTool import errorFrequencyAgent_prompt_node
 from .tools.probeSystem import probe_system
 from .tools.queryChroma import query_chroma
 from .tools.queryDBase import database_tool
 from .tools.result import resultAgent_prompt_node
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
 tools = [
     resultAgent_prompt_node,
