@@ -114,7 +114,7 @@ build.add_node("tools", tool_node)
 build.add_edge(START, "Chatbot")
 build.add_conditional_edges("Chatbot", check_toolcalls, {"tools": "tools", "END": END})
 build.add_edge("tools", "Chatbot")
-build.add_edge("Chatbot", END)
+# build.add_edge("Chatbot", END)
 
 graph = build.compile()
 
