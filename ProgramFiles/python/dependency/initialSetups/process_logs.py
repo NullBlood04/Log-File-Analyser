@@ -22,7 +22,7 @@ load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 # Use a single, unified bookmark file.
 BOOKMARK_PATH = os.getenv(
-    "RECORD_PATH", os.path.join(PROJECT_ROOT, "TextFiles", "last_recordedId.txt")
+    "APP_BOOKMARK", os.path.join(PROJECT_ROOT, "TextFiles", "last_recordedId.txt")
 )
 CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
 POWERSHELL_SCRIPT_PATH = os.path.join(
