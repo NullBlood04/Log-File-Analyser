@@ -1,50 +1,63 @@
 import mysql.connector
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class ConnectDBase:
 
     def __init__(self, user, password, database) -> None:
+        self.connect_dbase = None
+        self.cursor = None
         try:
             self.connect_dbase = mysql.connector.connect(
                 host="localhost", user=user, passwd=password, database=database
             )
             self.cursor = self.connect_dbase.cursor()
-        except Exception as e:
-            print("Could not connect:", e)
+            logging.info("Successfully connected to the database.")
+        except mysql.connector.Error as e:
+            logging.error(f"Could not connect to database: {e}")
+
+    def is_connected(self) -> bool:
+        """Check if the database connection is active."""
+        return self.connect_dbase is not None and self.connect_dbase.is_connected()
 
     def disconnect_sql(self) -> None:
-        if self.connect_dbase and self.connect_dbase.is_connected():
+        if self.is_connected() and self.connect_dbase:
+            # Check if cursor exists before closing
+            if self.cursor:
+                self.cursor.close()
             self.connect_dbase.close()
-            self.cursor.close()
+            logging.info("Database connection closed.")
 
     def execute_query(self, query: str, params: tuple | None = None) -> bool:
         try:
-            if self.cursor:
-                print("Query executed...")
+            if self.is_connected() and self.cursor and self.connect_dbase:
                 self.cursor.execute(query, params)  # type: ignore
                 self.connect_dbase.commit()
                 return True
             else:
-                print("Query not executed")
+                logging.warning("Query not executed: Database not connected.")
                 return False
-        except Exception as e:
-            print("Error:", e)
-            self.connect_dbase.rollback()
+        except mysql.connector.Error as e:
+            logging.error(f"Error executing query: {e}")
+            if self.is_connected() and self.connect_dbase:
+                self.connect_dbase.rollback()
             return False
 
     def fetch_all(self, query: str, params: tuple | None = None) -> bool | list:
         try:
-            if self.cursor:
-                print("Query Executed...")
+            if self.is_connected() and self.cursor:
                 self.cursor.execute(query, params)  # type: ignore
                 return self.cursor.fetchall()
             else:
-                print("Database not connected")
+                logging.warning("Cannot fetch: Database not connected.")
                 return False
-
-        except Exception as e:
-            print("Error:", e)
-            self.connect_dbase.rollback()
+        except mysql.connector.Error as e:
+            logging.error(f"Error fetching data: {e}")
             return False
 
 
