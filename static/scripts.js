@@ -43,7 +43,7 @@ function sendMessage() {
     abortController = new AbortController();
 
     // Update UI to show "in progress" state
-    sendButton.textContent = "Stop Generating";
+    sendButton.textContent = "Abort";
 
     // Display user message securely
     const userMessageDiv = document.createElement('div');
