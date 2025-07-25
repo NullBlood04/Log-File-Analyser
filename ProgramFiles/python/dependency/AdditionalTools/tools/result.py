@@ -21,4 +21,5 @@ def resultAgent_prompt_node(analyse_content: str):
     logging.info(f"Received content for analysis: {analyse_content}")
     resultAgent = ResultAgent()
     response = resultAgent.prompt(analyse_content)
+    logging.info(f"ResultAgent response: {response}")
     return response

@@ -22,4 +22,5 @@ def errorFrequencyAgent_prompt_node(timestamps: str):
     logging.info(f"Received timestamps for frequency analysis: {timestamps}")
     frequencyAgent = ErrorFrequencyAgent()
     response = frequencyAgent.frequency_prompt(timestamps)
+    logging.info(f"ErrorFrequencyAgent response: {response}")
     return response
