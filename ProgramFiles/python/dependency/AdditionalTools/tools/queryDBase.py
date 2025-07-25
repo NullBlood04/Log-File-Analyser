@@ -22,25 +22,20 @@ PWD = os.getenv("MYSQL_PASSWORD")
 @tool(parse_docstring=True)
 def database_tool(query: str, params: tuple | None = None):
     """
-    Executes a read-only SQL SELECT query on the 'log' database and returns the results.
-    This tool is for data retrieval only. Operations like INSERT, UPDATE, or DELETE are not allowed.
-    Use '%s' as the placeholder for parameters in the query.
+    Executes a read-only SQL SELECT query on the 'log' database.
+
+    IMPORTANT: Only SELECT queries are permitted. Use '%s' for parameter placeholders.
 
     Database Schema:
-        Table: application_errors
-            - RecordId (BIGINT, PRIMARY KEY, NOT NULL)
-            - EventID (INT)
-            - Level (VARCHAR(8))
-            - Source (VARCHAR(70))
-            - TimeCreated (DATETIME)
+      Tables `Application_logs` and `System_logs` share this schema:
+      - RecordId (BIGINT, PK), EventID (INT), Level (VARCHAR(8)), Source (VARCHAR(70)), TimeCreated (DATETIME)
 
     Args:
-        query (str): The SELECT SQL query string. Must start with "SELECT".
-        params (tuple, optional): A tuple of parameters to be safely substituted into the query.
+        query (str): The SELECT SQL query string.
+        params (tuple, optional): Parameters to substitute into the query.
 
     Returns:
-        str: A formatted string of the results, suitable for an LLM.
-             Returns a message if no records are found or an error occurs.
+        str: Formatted results for an LLM, or a message if no records are found or an error occurs.
     """
     logging.info(f"Executing SQL query: {query} with params: {params}")
 
