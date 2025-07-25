@@ -1,11 +1,14 @@
+"""
+This package contains the core application logic, including agents, tools,
+and setup scripts for the log analyzer.
+"""
+
 from .Agents.chatbot import ChatBot
-from .initialSetups.process_logs import process_new_logs
-from .initialSetups.createDatabase import create_errorDbase
+from .initialSetups.initialise import run_processing
 
-
+# The __all__ list defines the public API of the package.
+# When a user does 'from dependency import *', only ChatBot will be imported.
 __all__ = ["ChatBot"]
 
 
-# Create database and insert data if not exists
-create_errorDbase()
-process_new_logs()
+run_processing()
