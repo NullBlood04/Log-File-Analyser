@@ -4,7 +4,7 @@ import chromadb
 from dotenv import load_dotenv
 
 # Local imports from the 'dependency' package
-from dependency.initialSetups.process_logs import process_new_logs
+from dependency.initialSetups.process_logs import prepare_log_batch, update_bookmark
 from dependency.initialSetups.createDatabase import create_errorDbase
 from dependency.AdditionalTools.sqlConnection import ConnectDBase
 
@@ -14,7 +14,9 @@ logging.basicConfig(
 )
 
 # --- Configuration ---
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+)
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 # Use separate bookmark files for each log type to track progress independently.
@@ -34,32 +36,107 @@ def run_processing():
     main entry point for the log ingestion pipeline.
     """
     logging.info("--- Starting Log Processing Cycle ---")
-
-    # 1. Ensure database schema exists before processing.
     create_errorDbase()
-
-    # 2. Establish shared database connections.
     sql_con = None
+
     try:
         user, password = os.getenv("MYSQL_USER"), os.getenv("MYSQL_PASSWORD")
-        # Connect to the 'log' database, consistent with createDatabase.py
         sql_con = ConnectDBase(user, password, "log")
-
-        # The ChromaDB client is file-based and should be instantiated once.
         chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
         collection = chroma_client.get_or_create_collection(name="windows_event_logs")
 
         if sql_con.is_connected():
-            # 3. Process logs for each specified log type using the shared connections.
-            process_new_logs("Application", BOOKMARK_PATH_APP, sql_con, collection)
-            process_new_logs("System", BOOKMARK_PATH_SYS, sql_con, collection)
-        else:
-            logging.error("Could not connect to SQL database. Log processing skipped.")
+
+            app_data = prepare_log_batch("Application", BOOKMARK_PATH_APP)
+            sys_data = prepare_log_batch("System", BOOKMARK_PATH_SYS)
+
+            logging.info("Processing Application and System logs...")
+
+            all_docs = []
+            all_metadatas = []
+            all_ids = []
+
+            if app_data:
+                all_docs.extend(app_data["chroma_docs"])
+                all_metadatas.extend(app_data["chroma_metadatas"])
+                all_ids.extend(app_data["chroma_ids"])
+
+            if sys_data:
+                all_docs.extend(sys_data["chroma_docs"])
+                all_metadatas.extend(sys_data["chroma_metadatas"])
+                all_ids.extend(sys_data["chroma_ids"])
+
+            # Perform all database operations together
+            try:
+                if all_ids:
+                    """# First, execute SQL queries
+                    if app_data:
+
+                        sql_con.execute_many(
+                            app_data["sql_query"], app_data["sql_batch"]
+                        )
+
+                        logging.info(
+                            f"Successfully added {len(app_data['sql_batch'])} new Application log entries."
+                        )
+
+                    if sys_data:
+
+                        sql_con.execute_many(
+                            sys_data["sql_query"], sys_data["sql_batch"]
+                        )
+
+                        logging.info(
+                            f"Successfully added {len(sys_data['sql_batch'])} new System log entries."
+                        )"""
+
+                    # Then, add to Chroma in ONE call
+                    collection.add(
+                        documents=all_docs, metadatas=all_metadatas, ids=all_ids
+                    )
+
+                    """ for id in all_ids:
+                        print(f"Added ID: {id}", end=" ")
+
+                    logging.info(
+                        f"Successfully added {len(all_ids)} documents to ChromaDB."
+                    )
+
+                    # Finally, commit and update bookmarks
+                    sql_con.connection.commit()  # type: ignore """
+                    if app_data:
+
+                        update_bookmark(
+                            app_data["bookmark_path"], app_data["max_record_id"]
+                        )
+
+                        logging.info(
+                            f"Updated Application bookmark to {app_data['max_record_id']}"
+                        )
+
+                    if sys_data:
+
+                        update_bookmark(
+                            sys_data["bookmark_path"], sys_data["max_record_id"]
+                        )
+
+                        logging.info(
+                            f"Updated System bookmark to {sys_data['max_record_id']}"
+                        )
+
+                    logging.info("Transaction successful.")
+
+            except Exception as e:
+                logging.error(f"Transaction failed: {e}")
+                sql_con.connection.rollback()  # type: ignore
+
+    # ... finally close connection ...
 
     except Exception as e:
-        logging.error(f"A critical error occurred during the log processing cycle: {e}")
+        logging.error(f"A critical error occurred: {e}")
+        if sql_con and sql_con.is_connected():
+            sql_con.connection.rollback()  # type: ignore
     finally:
-        # 4. Ensure the SQL connection is always closed to release resources.
         if sql_con and sql_con.is_connected():
             sql_con.disconnect_sql()
         logging.info("--- Log Processing Cycle Finished ---")

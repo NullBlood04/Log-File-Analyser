@@ -166,12 +166,43 @@ def _process_and_store_logs(
     return sql_batch, chroma_docs, chroma_metadatas, chroma_ids, max_record_id
 
 
+def prepare_log_batch(log_name: str, bookmark_path: str):
+    """
+    Fetches and processes new logs, returning them ready for storage.
+    """
+    last_record_id = get_bookmark(bookmark_path)
+    json_output = _run_powershell_script(log_name, last_record_id)
+    if not json_output:
+        return None
+
+    logs = _parse_log_json(json_output)
+    if not logs:
+        return None
+
+    # This function just returns the processed data
+    sql_batch, chroma_docs, chroma_metadatas, chroma_ids, max_record_id = (
+        _process_and_store_logs(logs, log_name, last_record_id)
+    )
+
+    # Return everything needed for the final commit
+    return {
+        "sql_batch": sql_batch,
+        "sql_query": f"INSERT INTO {log_name}_logs (RecordId, EventID, Level, Source, TimeCreated) VALUES (%s, %s, %s, %s, %s)",
+        "chroma_docs": chroma_docs,
+        "chroma_metadatas": chroma_metadatas,
+        "chroma_ids": chroma_ids,
+        "bookmark_path": bookmark_path,
+        "max_record_id": max_record_id,
+    }
+
+
 def process_new_logs(
     log_name: str,
     bookmark_path: str,
     sql_con: ConnectDBase,
     collection: chromadb.Collection,
-) -> None:
+    batch_mode: bool = False,
+) -> dict | None:
     """
     Orchestrates the extraction, processing, and storage of new Windows Event Logs.
     """
@@ -201,14 +232,33 @@ def process_new_logs(
     try:
         sql_query = f"INSERT INTO {log_name}_logs (RecordId, EventID, Level, Source, TimeCreated) VALUES (%s, %s, %s, %s, %s)"
         if sql_con.execute_many(sql_query, sql_batch):
-            collection.add(
+            """collection.add(
                 documents=chroma_docs, metadatas=chroma_metadatas, ids=chroma_ids
             )
             sql_con.connection.commit()  # type: ignore
             logging.info(
                 f"Successfully committed {len(sql_batch)} new '{log_name}' log entries."
             )
-            update_bookmark(bookmark_path, max_record_id)
+            update_bookmark(bookmark_path, max_record_id)"""
+            if batch_mode:
+                # In batch mode, RETURN the data instead of adding it
+                logging.info(
+                    f"Successfully returned {len(sql_batch)} new '{log_name}' log entries."
+                )
+                update_bookmark(bookmark_path, max_record_id)
+                return {
+                    "docs": chroma_docs,
+                    "metadatas": chroma_metadatas,
+                    "ids": chroma_ids,
+                }
+            else:
+                collection.add(
+                    documents=chroma_docs, metadatas=chroma_metadatas, ids=chroma_ids
+                )
+                sql_con.connection.commit()  # type: ignore
+                logging.info(
+                    f"Successfully committed {len(sql_batch)} new '{log_name}' log entries."
+                )
         else:
             raise Exception("SQL batch execution failed.")
 

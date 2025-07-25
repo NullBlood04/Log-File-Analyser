@@ -1,21 +1,35 @@
-from langchain.tools import tool
 import chromadb
-from dotenv import load_dotenv
+from langchain.tools import tool
 import os
+from dotenv import load_dotenv
 import logging
 
-
+# --- Configuration (as before) ---
 PROJECT_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")
 )
 CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
-
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 
+# --- Create a single, shared client instance ---
+try:
+    CHROMA_CLIENT = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+    # Get the collection once to be reused by the tool
+    WINDOWS_LOGS_COLLECTION = CHROMA_CLIENT.get_or_create_collection(
+        name="windows_event_logs"
+    )
+    logging.info("Successfully connected to ChromaDB and loaded collection.")
+except Exception as e:
+    logging.critical(f"Failed to initialize ChromaDB client: {e}")
+    # Set to None so the tool can handle the failure gracefully
+    WINDOWS_LOGS_COLLECTION = None
+
+
+# --- Your Tool ---
 @tool(parse_docstring=True)
 def query_chroma(query: str, where_filter: dict | None = None):
     """
@@ -25,6 +39,8 @@ def query_chroma(query: str, where_filter: dict | None = None):
     - "source" (str): Log provider name
     - "event_id" (int): Event ID
     - "record_id" (int): Record ID
+    - "event_log" (str): Log type (e.g., "Application", "System")
+    - "timestamp" (str): Timestamp in ISO format
 
     Args:
         query (str): Search query.
@@ -35,31 +51,31 @@ def query_chroma(query: str, where_filter: dict | None = None):
     """
     logging.info(f"Querying ChromaDB with query: {query} and filter: {where_filter}")
 
-    try:
-        chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        # Use get_or_create_collection for robustness. This prevents errors
-        # if the collection doesn't exist yet (e.g., on a fresh run with no new logs).
-        collection = chroma_client.get_or_create_collection(name="windows_event_logs")
+    # Check if the collection was initialized successfully
+    if WINDOWS_LOGS_COLLECTION is None:
+        return "Error: ChromaDB collection is not available. Check application logs."
 
-        results = collection.query(query_texts=[query], n_results=5, where=where_filter)
+    try:
+        # Use the pre-initialized collection object
+        results = WINDOWS_LOGS_COLLECTION.query(
+            query_texts=[query], n_results=5, where=where_filter
+        )
+
+        print(results)
 
         documents = results.get("documents")
         if not documents or not documents[0]:
             return "No relevant log entries found for the given query and/or filter."
 
-        # Join the documents into a single plain text string, separated by newlines.
-        # This is cleaner for an LLM to process.
         full_output = "\n---\n".join(documents[0])
 
-        # Truncate if the output is too large for the LLM context to prevent errors.
-        max_output_length = 4000  # Characters
+        max_output_length = 4000
         if len(full_output) > max_output_length:
             truncated_output = full_output[:max_output_length]
             return f"{truncated_output}\n... (truncated, showing a subset of the most relevant results)"
 
         return full_output
     except ValueError as e:
-        # This can happen if the where_filter is invalid.
         logging.error(f"ChromaDB query failed with invalid filter: {e}")
         return f"Error during ChromaDB query, possibly an invalid filter: {e}"
     except Exception as e:
