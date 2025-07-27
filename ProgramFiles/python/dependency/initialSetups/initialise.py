@@ -4,9 +4,13 @@ import chromadb
 from dotenv import load_dotenv
 
 # Local imports from the 'dependency' package
-from dependency.initialSetups.process_logs import prepare_log_batch, update_bookmark
-from dependency.initialSetups.createDatabase import create_errorDbase
-from dependency.AdditionalTools.sqlConnection import ConnectDBase
+from dependency.initialSetups.process_logs import (
+    prepare_log_batch,
+)
+from .setupTools.updateBookmark import update_bookmark
+from .createDatabase import create_errorDbase
+from ..AdditionalTools.sqlConnection import ConnectDBase
+from . import PROJECT_ROOT
 
 # Configure logging
 logging.basicConfig(
@@ -14,9 +18,6 @@ logging.basicConfig(
 )
 
 # --- Configuration ---
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-)
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 # Use separate bookmark files for each log type to track progress independently.
@@ -36,12 +37,16 @@ def run_processing():
     main entry point for the log ingestion pipeline.
     """
     logging.info("--- Starting Log Processing Cycle ---")
+
     create_errorDbase()
+
     sql_con = None
 
     try:
         user, password = os.getenv("MYSQL_USER"), os.getenv("MYSQL_PASSWORD")
+
         sql_con = ConnectDBase(user, password, "log")
+
         chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
         collection = chroma_client.get_or_create_collection(name="windows_event_logs")
 
@@ -49,6 +54,9 @@ def run_processing():
 
             app_data = prepare_log_batch("Application", BOOKMARK_PATH_APP)
             sys_data = prepare_log_batch("System", BOOKMARK_PATH_SYS)
+
+            """ app_data = prepare_log_batch_debug(r"JSON\\application_logs.json")
+            sys_data = prepare_log_batch_debug(r"JSON\\system_logs.json") """
 
             logging.info("Processing Application and System logs...")
 
@@ -69,7 +77,7 @@ def run_processing():
             # Perform all database operations together
             try:
                 if all_ids:
-                    """# First, execute SQL queries
+                    # First, execute SQL queries
                     if app_data:
 
                         sql_con.execute_many(
@@ -88,14 +96,14 @@ def run_processing():
 
                         logging.info(
                             f"Successfully added {len(sys_data['sql_batch'])} new System log entries."
-                        )"""
+                        )
 
                     # Then, add to Chroma in ONE call
                     collection.add(
                         documents=all_docs, metadatas=all_metadatas, ids=all_ids
                     )
 
-                    """ for id in all_ids:
+                    for id in all_ids:
                         print(f"Added ID: {id}", end=" ")
 
                     logging.info(
@@ -103,7 +111,8 @@ def run_processing():
                     )
 
                     # Finally, commit and update bookmarks
-                    sql_con.connection.commit()  # type: ignore """
+                    sql_con.connection.commit()  # type: ignore
+
                     if app_data:
 
                         update_bookmark(
