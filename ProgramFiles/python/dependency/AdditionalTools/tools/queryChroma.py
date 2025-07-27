@@ -61,8 +61,6 @@ def query_chroma(query: str, where_filter: dict | None = None):
             query_texts=[query], n_results=5, where=where_filter
         )
 
-        print(results)
-
         documents = results.get("documents")
         if not documents or not documents[0]:
             return "No relevant log entries found for the given query and/or filter."
