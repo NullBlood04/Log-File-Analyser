@@ -9,10 +9,11 @@ from typing_extensions import TypedDict
 from dotenv import load_dotenv
 import os
 
-from ..AdditionalTools.chatbotTools import tools
-from ..AdditionalTools.literals import chat_system_prompt
+from AdditionalTools import TOOLS
+from AdditionalTools import CHAT_SYSTEM_PROMPT
+from . import PROJECT_ROOT
 
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 AZURE_RESOURCE_NAME = os.getenv("AZURE_RESOURCE_NAME")
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
@@ -42,7 +43,7 @@ initial_state = {
 
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", chat_system_prompt),
+        ("system", CHAT_SYSTEM_PROMPT),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{input}"),
     ]
@@ -54,7 +55,7 @@ class State(TypedDict):
     messages: list
 
 
-tool_binded_chat = chat.bind_tools(tools)
+tool_binded_chat = chat.bind_tools(TOOLS)
 
 conversation = (
     RunnablePassthrough.assign(
@@ -65,7 +66,7 @@ conversation = (
 )
 
 
-tool_node = ToolNode(tools)
+tool_node = ToolNode(TOOLS)
 
 
 # Chatbot node

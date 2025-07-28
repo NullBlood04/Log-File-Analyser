@@ -1,8 +1,8 @@
+from .chatbot import ChatBot
 import os
-from .initialise import run_processing
 
 PROJECT_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
 )
 
-__all__ = ["PROJECT_ROOT", "run_processing"]
+__all__ = ["ChatBot"]

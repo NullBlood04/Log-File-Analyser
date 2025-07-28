@@ -2,17 +2,17 @@ from langchain.schema import SystemMessage, HumanMessage
 
 # Local imports
 from .parent_aiConnector import Connect_AI
-from ..AdditionalTools.literals import (
-    errorFrequency_system_prompt,
-    errorFrequency_human_prompt,
+from AdditionalTools import (
+    ERRORFREQUENCY_SYSTEM_PROMPT,
+    ERRORFREQUENCY_HUMAN_PROMPT,
 )
 
 
 class ErrorFrequencyAgent(Connect_AI):
 
-    system_prompt = errorFrequency_system_prompt
+    system_prompt = ERRORFREQUENCY_SYSTEM_PROMPT
 
-    human_prompt = errorFrequency_human_prompt
+    human_prompt = ERRORFREQUENCY_HUMAN_PROMPT
 
     def frequency_prompt(self, error_content):  # type: ignore
         """

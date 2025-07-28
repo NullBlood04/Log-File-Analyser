@@ -4,12 +4,12 @@ import chromadb
 from dotenv import load_dotenv
 
 # Local imports from the 'dependency' package
-from dependency.initialSetups.process_logs import (
+from .process_logs import (
     prepare_log_batch,
 )
-from .setupTools.updateBookmark import update_bookmark
+from setupTools import update_bookmark
 from .createDatabase import create_errorDbase
-from ..AdditionalTools.sqlConnection import ConnectDBase
+from AdditionalTools import ConnectDBase
 from . import PROJECT_ROOT
 
 # Configure logging
@@ -119,18 +119,10 @@ def run_processing():
                             app_data["bookmark_path"], app_data["max_record_id"]
                         )
 
-                        logging.info(
-                            f"Updated Application bookmark to {app_data['max_record_id']}"
-                        )
-
                     if sys_data:
 
                         update_bookmark(
                             sys_data["bookmark_path"], sys_data["max_record_id"]
-                        )
-
-                        logging.info(
-                            f"Updated System bookmark to {sys_data['max_record_id']}"
                         )
 
                     logging.info("Transaction successful.")

@@ -1,5 +1,5 @@
 # Imported by AI_handler.py, used in system_prompt of ResultAgent
-resultAgent_system_prompt = (
+RESULTAGENT_SYSTEM_PROMPT = (
     "You are an expert in analyzing Windows Event Logs.  "
     "Your task is to examine error messages provided by an AI in the pipeline "
     "in a JSON format, identify the root cause of the issue and explain it in a "
@@ -8,10 +8,10 @@ resultAgent_system_prompt = (
 )
 
 # Imported by AI_handler.py, used in human_prompt of ResultAgent
-resultAgent_human_prompt = "Below are the Windows Error Event Logs retrieved from the system. Please analyze them."
+RESULTAGENT_HUMAN_PROMPT = "Below are the Windows Error Event Logs retrieved from the system. Please analyze them."
 
 # Imported by error_frequency.py, used in system_prompt of ErrorFrequencyAgent
-errorFrequency_system_prompt = """
+ERRORFREQUENCY_SYSTEM_PROMPT = """
 You are a log analysis expert. Given event timestamps and optional context, reply in less than equal to 2 sentences:
 
 “[Count] [errors] [per day or between X and Y]”
@@ -19,11 +19,11 @@ You are a log analysis expert. Given event timestamps and optional context, repl
 Be precise. If no timestamps, assume it happened once.
 """
 
-errorFrequency_human_prompt = (
+ERRORFREQUENCY_HUMAN_PROMPT = (
     "Please summarize the daily frequency.  Given are the timestamps\n"
 )
 
-chat_system_prompt = """
+CHAT_SYSTEM_PROMPT = """
 You are a professional event log analysis chatbot.
 Duties:
 For event log queries, use:

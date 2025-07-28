@@ -17,7 +17,7 @@ class ConnectDBase:
                 host="localhost", user=user, passwd=password, database=database
             )
             self.cursor = self.connection.cursor()
-            logging.info("Successfully connected to the database.")
+            logging.info(f"Successfully connected to the `{database}` database.")
         except mysql.connector.Error as e:
             logging.error(f"Could not connect to database: {e}")
 

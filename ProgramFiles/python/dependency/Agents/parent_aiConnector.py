@@ -3,7 +3,9 @@ from abc import ABC
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+from . import PROJECT_ROOT
+
+load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 
 class Connect_AI(ABC):

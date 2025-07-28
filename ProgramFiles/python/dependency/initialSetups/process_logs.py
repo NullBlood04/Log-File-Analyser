@@ -1,15 +1,13 @@
-import chromadb
 from dotenv import load_dotenv
 import os
 import logging
 
 # Local imports
 from . import PROJECT_ROOT
-from ..AdditionalTools.sqlConnection import ConnectDBase
-from .setupTools.runScript import _run_powershell_script
-from .setupTools.jsonParse import _parse_log_json
-from .setupTools.getBookmark import get_bookmark
-from .setupTools.processStore import _process_and_store_logs
+from setupTools import _run_powershell_script
+from setupTools import _parse_log_json
+from setupTools import get_bookmark
+from setupTools import _process_and_store_logs
 
 
 # Configure logging for better diagnostics

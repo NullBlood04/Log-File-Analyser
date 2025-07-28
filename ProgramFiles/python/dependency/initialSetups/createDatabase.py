@@ -3,7 +3,8 @@ import os
 import logging
 
 # Local imports
-from ..AdditionalTools.sqlConnection import ConnectDBase
+from AdditionalTools import ConnectDBase
+from . import PROJECT_ROOT
 
 # Configure logging
 logging.basicConfig(
@@ -20,9 +21,6 @@ Database Schema:
         - Source (VARCHAR(70))
         - TimeCreated (DATETIME)
  """
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-)
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 
