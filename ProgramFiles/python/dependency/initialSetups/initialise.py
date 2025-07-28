@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from .process_logs import (
     prepare_log_batch,
 )
-from setupTools import update_bookmark
+from .setupTools import update_bookmark
 from .createDatabase import create_errorDbase
-from AdditionalTools import ConnectDBase
+from ..AdditionalTools import ConnectDBase
 from . import PROJECT_ROOT
 
 # Configure logging

@@ -9,8 +9,7 @@ from typing_extensions import TypedDict
 from dotenv import load_dotenv
 import os
 
-from AdditionalTools import TOOLS
-from AdditionalTools import CHAT_SYSTEM_PROMPT
+from ..AdditionalTools import CHAT_SYSTEM_PROMPT, TOOLS
 from . import PROJECT_ROOT
 
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))

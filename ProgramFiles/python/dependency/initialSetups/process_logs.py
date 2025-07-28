@@ -4,11 +4,12 @@ import logging
 
 # Local imports
 from . import PROJECT_ROOT
-from setupTools import _run_powershell_script
-from setupTools import _parse_log_json
-from setupTools import get_bookmark
-from setupTools import _process_and_store_logs
-
+from .setupTools import (
+    _run_powershell_script,
+    _parse_log_json,
+    get_bookmark,
+    _process_and_store_logs,
+)
 
 # Configure logging for better diagnostics
 logging.basicConfig(
