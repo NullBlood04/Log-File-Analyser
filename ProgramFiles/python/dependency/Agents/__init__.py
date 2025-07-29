@@ -1,8 +1,5 @@
-from .chatbot import ChatBot
-import os
+from ..chatbot import ChatBot
+from .frequencyAgent import ErrorFrequencyAgent
+from .resultAgent import ResultAgent
 
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-)
-
-__all__ = ["ChatBot"]
+__all__ = ["ChatBot", "ErrorFrequencyAgent", "ResultAgent"]

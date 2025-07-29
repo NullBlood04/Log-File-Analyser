@@ -4,7 +4,7 @@ import logging
 
 # Local imports
 from ..AdditionalTools import ConnectDBase
-from . import PROJECT_ROOT
+from .. import PROJECT_ROOT
 
 # Configure logging
 logging.basicConfig(

@@ -2,21 +2,25 @@ from langchain.tools import tool
 from ..sqlConnection import ConnectDBase
 from dotenv import load_dotenv
 import os
+import re
 import logging
 
+from ... import PROJECT_ROOT
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")
 )
 
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
 USR = os.getenv("MYSQL_USER")
 PWD = os.getenv("MYSQL_PASSWORD")
+
+
+def replacer(match):
+    token = match.group(0)
+    return "%s" if token == "?" else token
 
 
 @tool(parse_docstring=True)
@@ -37,7 +41,6 @@ def database_tool(query: str, params: tuple | None = None):
     Returns:
         str: Formatted results for an LLM, or a message if no records are found or an error occurs.
     """
-    logging.info(f"Executing SQL query: {query} with params: {params}")
 
     # Security: Enforce read-only operations
     if not query.strip().upper().startswith("SELECT"):
@@ -52,7 +55,10 @@ def database_tool(query: str, params: tuple | None = None):
                 "Failed to establish a connection to the SQL database."
             )
 
-        rows = connection.fetch_all(query, params)
+        sanitised_query = re.sub(r"'[^']*'|\"[^\"]*\"|\?", replacer, query)
+        logging.info(f"Executing SQL query: {sanitised_query} with params: {params}")
+
+        rows = connection.fetch_all(sanitised_query, params)
         if not rows:
             return "Query executed successfully, but no records were found."
 

@@ -1,5 +1,4 @@
 from langchain.tools import tool
-from ...Agents.frequencyAgent import ErrorFrequencyAgent
 import logging
 
 logging.basicConfig(
@@ -18,6 +17,7 @@ def errorFrequencyAgent_prompt_node(timestamps: str):
     Returns:
         str: One-line AI summary of error frequency.
     """
+    from ...Agents import ErrorFrequencyAgent
 
     logging.info(f"Received timestamps for frequency analysis: {timestamps}")
     frequencyAgent = ErrorFrequencyAgent()

@@ -10,7 +10,7 @@ from .process_logs import (
 from .setupTools import update_bookmark
 from .createDatabase import create_errorDbase
 from ..AdditionalTools import ConnectDBase
-from . import PROJECT_ROOT
+from .. import PROJECT_ROOT
 
 # Configure logging
 logging.basicConfig(
@@ -27,7 +27,7 @@ BOOKMARK_PATH_APP = os.getenv(
 BOOKMARK_PATH_SYS = os.getenv(
     "SYS_BOOKMARK", os.path.join(PROJECT_ROOT, "TextFiles", "last_sys_id.txt")
 )
-CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
+CHROMA_DB_PATH = "C:\\chromadb"
 
 
 def run_processing():
@@ -48,12 +48,14 @@ def run_processing():
         sql_con = ConnectDBase(user, password, "log")
 
         chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        collection = chroma_client.get_or_create_collection(name="windows_event_logs")
+        collection = chroma_client.get_or_create_collection(
+            name="windows_event_logs",
+        )
 
         if sql_con.is_connected():
 
-            app_data = prepare_log_batch("Application", BOOKMARK_PATH_APP)
             sys_data = prepare_log_batch("System", BOOKMARK_PATH_SYS)
+            app_data = prepare_log_batch("Application", BOOKMARK_PATH_APP)
 
             """ app_data = prepare_log_batch_debug(r"JSON\\application_logs.json")
             sys_data = prepare_log_batch_debug(r"JSON\\system_logs.json") """
@@ -73,6 +75,8 @@ def run_processing():
                 all_docs.extend(sys_data["chroma_docs"])
                 all_metadatas.extend(sys_data["chroma_metadatas"])
                 all_ids.extend(sys_data["chroma_ids"])
+
+            print(all_docs[0])
 
             # Perform all database operations together
             try:
@@ -102,9 +106,6 @@ def run_processing():
                     collection.add(
                         documents=all_docs, metadatas=all_metadatas, ids=all_ids
                     )
-
-                    for id in all_ids:
-                        print(f"Added ID: {id}", end=" ")
 
                     logging.info(
                         f"Successfully added {len(all_ids)} documents to ChromaDB."

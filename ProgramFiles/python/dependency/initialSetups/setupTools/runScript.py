@@ -3,7 +3,7 @@ import logging
 import os
 
 
-from .. import PROJECT_ROOT
+from ... import PROJECT_ROOT
 
 POWERSHELL_SCRIPT_PATH = os.path.join(
     PROJECT_ROOT, "ProgramFiles", "powershell", "extract_logs.ps1"

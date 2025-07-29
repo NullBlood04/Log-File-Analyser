@@ -4,11 +4,12 @@ import os
 from dotenv import load_dotenv
 import logging
 
+from ... import PROJECT_ROOT
+
 # --- Configuration (as before) ---
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")
-)
-CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
+
+CHROMA_DB_PATH = "C:\\chromadb"
+
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -20,7 +21,7 @@ try:
     CHROMA_CLIENT = chromadb.PersistentClient(path=CHROMA_DB_PATH)
     # Get the collection once to be reused by the tool
     WINDOWS_LOGS_COLLECTION = CHROMA_CLIENT.get_or_create_collection(
-        name="windows_event_logs"
+        name="windows_event_logs",
     )
     logging.info("Successfully connected to ChromaDB and loaded collection.")
 except Exception as e:
@@ -58,7 +59,7 @@ def query_chroma(query: str, where_filter: dict | None = None):
     try:
         # Use the pre-initialized collection object
         results = WINDOWS_LOGS_COLLECTION.query(
-            query_texts=[query], n_results=5, where=where_filter
+            query_texts=[query], n_results=8, where=where_filter
         )
 
         documents = results.get("documents")

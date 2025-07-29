@@ -3,12 +3,17 @@ This package contains the core application logic, including agents, tools,
 and setup scripts for the log analyzer.
 """
 
-from .Agents import ChatBot
+import os
+
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..")
+)
+
+from . import ChatBot
 from .initialSetups import run_processing
 
-# The __all__ list defines the public API of the package.
-# When a user does 'from dependency import *', only ChatBot will be imported.
-__all__ = ["ChatBot"]
+__all__ = ["ChatBot", "run_processing", "PROJECT_ROOT"]
 
-
-run_processing()
+# NOTE: The call to run_processing() has been removed. It is best practice to call
+# initialization functions from a main entrypoint script, not as a side-effect
+# of importing a package.

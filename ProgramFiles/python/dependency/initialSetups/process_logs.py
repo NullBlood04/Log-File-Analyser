@@ -3,7 +3,7 @@ import os
 import logging
 
 # Local imports
-from . import PROJECT_ROOT
+from .. import PROJECT_ROOT
 from .setupTools import (
     _run_powershell_script,
     _parse_log_json,
@@ -20,7 +20,7 @@ logging.basicConfig(
 
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
-CHROMA_DB_PATH = os.path.join(PROJECT_ROOT, "chromaDB")
+CHROMA_DB_PATH = "C:\\chromadb"
 
 # Make chroma-db directory if it doesn't exist
 os.makedirs(CHROMA_DB_PATH, exist_ok=True)

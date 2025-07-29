@@ -1,3 +1,5 @@
+import os
+
 from .frequencyTool import errorFrequencyAgent_prompt_node
 from .probeSystem import probe_system
 from .queryChroma import query_chroma

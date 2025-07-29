@@ -3,6 +3,7 @@ import markdown2
 from langchain_core.messages import AIMessage
 from dependency import ChatBot
 
+
 app = Flask(__name__, template_folder=r"..\..\templates", static_folder=r"..\..\static")
 
 bot = ChatBot()
