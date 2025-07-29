@@ -1,1 +1,1 @@
-Stores the last recorded `RecordId`.
+Stores the last recorded `RecordId` for Application log

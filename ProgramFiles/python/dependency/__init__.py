@@ -10,9 +10,9 @@ PROJECT_ROOT = os.path.abspath(
 )
 
 from .chatbot import ChatBot
-from .initialSetups import run_processing
+from .initialSetups import daily_run
 
-__all__ = ["ChatBot", "run_processing", "PROJECT_ROOT"]
+__all__ = ["ChatBot", "daily_run", "PROJECT_ROOT"]
 
 # NOTE: The call to run_processing() has been removed. It is best practice to call
 # initialization functions from a main entrypoint script, not as a side-effect

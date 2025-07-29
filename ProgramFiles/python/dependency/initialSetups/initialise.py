@@ -40,6 +40,7 @@ def run_processing():
     logging.info("--- Starting Log Processing Cycle ---")
 
     create_errorDbase()
+    os.makedirs(CHROMA_DB_PATH, exist_ok=True)
 
     sql_con = None
 
@@ -80,8 +81,6 @@ def run_processing():
                 all_docs.extend(sys_data["chroma_docs"])
                 all_metadatas.extend(sys_data["chroma_metadatas"])
                 all_ids.extend(sys_data["chroma_ids"])
-
-            print(all_docs[0])
 
             # Perform all database operations together
             try:

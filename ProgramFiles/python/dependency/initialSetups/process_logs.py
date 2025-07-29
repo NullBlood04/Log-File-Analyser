@@ -20,10 +20,9 @@ logging.basicConfig(
 
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"))
 
-CHROMA_DB_PATH = "C:\\chromadb"
+# CHROMA_DB_PATH = "C:\\chromadb"
 
 # Make chroma-db directory if it doesn't exist
-os.makedirs(CHROMA_DB_PATH, exist_ok=True)
 
 
 def prepare_log_batch(log_name: str, bookmark_path: str):

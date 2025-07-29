@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 import markdown2
 from langchain_core.messages import AIMessage
-from dependency import ChatBot
+from dependency import ChatBot, daily_run
+
+daily_run()
 
 
 app = Flask(__name__, template_folder=r"..\..\templates", static_folder=r"..\..\static")
