@@ -32,7 +32,7 @@ Your primary job is to intelligently choose the correct tool for the task.
 
 **1. For Database Queries:**
 
-- **Use `query_sql_database` for questions about structured data:**
+- **Use `database_tool` for questions about structured data:**
   - Counting or aggregation (e.g., "how many errors yesterday?", "top 5 event IDs").
   - Specific, exact filtering (e.g., "find logs with event ID 1074").
   - Queries about precise time ranges.
