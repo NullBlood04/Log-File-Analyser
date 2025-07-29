@@ -9,7 +9,7 @@ PROJECT_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..")
 )
 
-from . import ChatBot
+from .chatbot import ChatBot
 from .initialSetups import run_processing
 
 __all__ = ["ChatBot", "run_processing", "PROJECT_ROOT"]
