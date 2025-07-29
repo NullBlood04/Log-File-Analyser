@@ -3,6 +3,7 @@ from langchain.tools import tool
 import os
 from dotenv import load_dotenv
 import logging
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 from ... import PROJECT_ROOT
 
@@ -18,10 +19,13 @@ logging.basicConfig(
 
 # --- Create a single, shared client instance ---
 try:
+    # Define the embedding function consistently to match the one used for ingestion.
+    # This is crucial for preventing index corruption and ensuring correct query results.
+    embedding_fn = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
     CHROMA_CLIENT = chromadb.PersistentClient(path=CHROMA_DB_PATH)
     # Get the collection once to be reused by the tool
     WINDOWS_LOGS_COLLECTION = CHROMA_CLIENT.get_or_create_collection(
-        name="windows_event_logs",
+        name="windows_event_logs", embedding_function=embedding_fn  # type: ignore
     )
     logging.info("Successfully connected to ChromaDB and loaded collection.")
 except Exception as e:

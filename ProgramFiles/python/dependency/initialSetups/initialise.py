@@ -2,6 +2,7 @@ import os
 import logging
 import chromadb
 from dotenv import load_dotenv
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 # Local imports from the 'dependency' package
 from .process_logs import (
@@ -47,9 +48,13 @@ def run_processing():
 
         sql_con = ConnectDBase(user, password, "log")
 
+        # Define the embedding function consistently. This is crucial for preventing index corruption.
+        embedding_fn = SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
         chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
         collection = chroma_client.get_or_create_collection(
-            name="windows_event_logs",
+            name="windows_event_logs", embedding_function=embedding_fn  # type: ignore
         )
 
         if sql_con.is_connected():
