@@ -1,11 +1,19 @@
-from .Agents.chatbot import ChatBot
-from .initialSetups.process_logs import process_new_logs
-from .initialSetups.createDatabase import create_errorDbase
+"""
+This package contains the core application logic, including agents, tools,
+and setup scripts for the log analyzer.
+"""
 
+import os
 
-__all__ = ["ChatBot"]
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..")
+)
 
+from .chatbot import ChatBot
+from .initialSetups import daily_run
 
-# Create database and insert data if not exists
-create_errorDbase()
-process_new_logs()
+__all__ = ["ChatBot", "daily_run", "PROJECT_ROOT"]
+
+# NOTE: The call to run_processing() has been removed. It is best practice to call
+# initialization functions from a main entrypoint script, not as a side-effect
+# of importing a package.

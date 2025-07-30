@@ -2,17 +2,16 @@ from langchain.schema import SystemMessage, HumanMessage
 
 # Local imports
 from .parent_aiConnector import Connect_AI
-from ..AdditionalTools.literals import (
-    resultAgent_system_prompt,
-    resultAgent_human_prompt,
+from ..AdditionalTools import (
+    RESULTAGENT_SYSTEM_PROMPT,
+    RESULTAGENT_HUMAN_PROMPT,
 )
 
 
 class ResultAgent(Connect_AI):
 
-    system_prompt = resultAgent_system_prompt
-
-    human_prompt = resultAgent_human_prompt
+    system_prompt = RESULTAGENT_SYSTEM_PROMPT
+    human_prompt = RESULTAGENT_HUMAN_PROMPT
 
     def prompt(self, error_content):  # type: ignore
 
