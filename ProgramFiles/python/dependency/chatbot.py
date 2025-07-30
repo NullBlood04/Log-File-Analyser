@@ -18,11 +18,6 @@ AZURE_RESOURCE_NAME = os.getenv("AZURE_RESOURCE_NAME")
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_API_VERSION = os.getenv("AZURE_API_VERSION")
 GPT_MODEL = os.getenv("AZURE_DEPLOYMENT_NAME")
-USER = os.getenv("MYSQL_USER")
-PASSWD = os.getenv("MYSQL_PASSWORD")
-
-USR = os.getenv("MYSQL_USER")
-PWD = os.getenv("MYSQL_PASSWORD")
 
 # API Connection
 chat = AzureChatOpenAI(
