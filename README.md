@@ -67,12 +67,17 @@ The application operates in a clear, multi-stage process to turn raw event logs 
 │       │   │   │   ├── result.py         # Tool for analysing event and providing solution.
 │       │   │   │   └── probeSystem.py    # Tool for executing safe system commands.
 │       │   │   │
-│       │   │   ├── sqlConnection.py  # Reusable class for MySQL database connections.
-│       │   │   └── ...
+│       │   │   ├── chatbotTools.py   # collection of tools.
+│       │   │   ├── literals.py       # Prompts for agents.
+│       │   │   └── sqlConnection.py  # Reusable class for MySQL database connections.
 │       │   │
 │       │   └── initialSetups/
+│       │       ├── setupTools        # Tools used by process_logs.py
+│       │       │   ├── ...
 │       │       ├── createDatabase.py # One-time script to create the MySQL database and table.
-│       │       └── process_logs.py   # Script to ingest logs into both MySQL and ChromaDB.
+│       │       ├── initialise.py     # Creates databases and populates them with data.
+│       │       ├── runInitialiser.py # Script to run initialise.py once a day when main.py is run.
+│       │       └── process_logs.py   # Script to batch logs of both MySQL and ChromaDB.
 │       │
 │       └── main.py                   # Flask app entry point to run the web interface.
 │
@@ -102,7 +107,8 @@ Create a `.env` file in the project root and populate it with your credentials:
 
 ```text
 AZURE_OPENAI_API_KEY="your-api-key"
-RECORD_PATH="insert recordedId.txt from TextFiles"
+APP_BOOKMARK="your-Appbookmark"
+SYS_BOOKMARK="your-Sysbookmark"
 AZURE_DEPLOYMENT_NAME="your-deployment-name"
 AZURE_RESOURCE_NAME="your-resource-name"
 AZURE_API_VERSION="2024-02-15-preview"
@@ -136,7 +142,7 @@ typing_extensions
 ## ▶️ How to Run
 
 Start the Flask server to launch the chatbot interface.
-It automaticaly creates databases using `createDatabase.py` and populates it using `process_logs.py`
+It automaticaly creates databases using the files in initialSetup
 
 
 ```bash
@@ -152,7 +158,6 @@ Navigate to **`http://127.0.0.1:5000`** in your web browser to start chatting wi
 -   [ ] Implement user authentication and authorization.
 -   [ ] Add UI controls for filtering logs by date, severity, or source.
 -   [ ] Support other log types (e.g., System, Security).
--   [ ] Create a background service to run `process_logs.py` automatically.
 -   [ ] Archive old logs to optimize performance.
 
 ---
